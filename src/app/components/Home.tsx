@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { Github, Linkedin, Mail, ArrowRight, Code2, Zap, Rocket } from "lucide-react";
 import { Link } from "react-router";
-import headshot from "figma:asset/9d37641e8fa5e93c1c982b6f47dd3003ff07e507.png";
+import headshot from "../../assets/headshot.png";
 
 export function Home() {
   const skills = [
