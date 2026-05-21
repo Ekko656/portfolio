@@ -29,7 +29,6 @@ function Moment({ align = 'center', stagger = 150, sparkle = false, lines }) {
 
   return (
     <div ref={ref} className={`${styles.moment} ${styles[align]}`}>
-      {sparkle && <Sparkles count={6} />}
       <div className={styles.inner}>
         {lines.map((ln, i) => {
           if (ln.kind === 'underline') {
@@ -120,6 +119,7 @@ function Aside() {
 export default function About() {
   return (
     <main className="page">
+      <Sparkles count={24} cols={4} parallax />
       <div className={styles.about}>
         <Moment
           align="center"

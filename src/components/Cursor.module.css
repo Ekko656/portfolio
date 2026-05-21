@@ -8,26 +8,6 @@
   will-change: transform;
 }
 
-/* faint purple glow halo — appears over text */
-.glow {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0.5);
-  background: radial-gradient(
-    circle,
-    rgba(126, 96, 176, 0.3) 0%,
-    rgba(126, 96, 176, 0.12) 40%,
-    transparent 70%
-  );
-  opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-/* the orb itself */
 .core {
   position: absolute;
   left: 0;
@@ -37,20 +17,38 @@
   border-radius: 50%;
   transform: translate(-50%, -50%);
   background: radial-gradient(circle at 35% 30%, #c9b3e6, #a68bc9 70%);
-  box-shadow: 0 0 8px rgba(184, 164, 212, 0.7);
+  box-shadow: 0 0 5px rgba(184, 164, 212, 0.55);
   transition: transform 0.18s ease-out, background 0.18s ease-out;
 }
-
-.isText .glow {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
 .isHover .core {
   transform: translate(-50%, -50%) scale(1.55);
   background: radial-gradient(circle at 35% 30%, #b8a4d4, #7e60b0 70%);
 }
-.isHover .glow {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1.05);
+
+/* flashlight: screen-blend purple spotlight that tints the letters it passes over */
+.flash {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  will-change: transform;
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    circle,
+    rgba(140, 98, 198, 0.72) 0%,
+    rgba(140, 98, 198, 0.34) 24%,
+    rgba(140, 98, 198, 0.12) 46%,
+    transparent 66%
+  );
+  transition: opacity 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash {
+    display: none;
+  }
 }

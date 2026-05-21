@@ -1,4 +1,6 @@
 .about {
+  position: relative;
+  z-index: 1;
   max-width: 1000px;
   margin: 0 auto;
   padding: 40px clamp(24px, 5vw, 64px) 100px;
@@ -48,16 +50,16 @@
 }
 /* direction-aware entrances for more character than a plain fade */
 .dirCenter {
-  transform: translateY(34px) scale(0.95);
+  transform: translateY(52px) scale(0.9);
 }
 .dirLeft {
-  transform: translateX(-46px) rotate(-1.2deg);
+  transform: translateX(-78px) rotate(-2deg);
 }
 .dirRight {
-  transform: translateX(46px) rotate(1.2deg);
+  transform: translateX(78px) rotate(2deg);
 }
 .blurLine {
-  filter: blur(11px);
+  filter: blur(16px);
 }
 .lineIn {
   opacity: 1;

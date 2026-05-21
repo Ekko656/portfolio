@@ -6,6 +6,12 @@
   pointer-events: none;
 }
 
+.par {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
 .blob {
   position: absolute;
   border-radius: 50%;
