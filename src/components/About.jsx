@@ -97,18 +97,25 @@ function Connector() {
   );
 }
 
-const INTERESTS = ['Volleyball', 'NBA', 'League of Legends', 'Drake', 'Boxing'];
+const INTERESTS = [
+  { label: 'Volleyball', emoji: '🏐' },
+  { label: 'NBA', emoji: '🏀' },
+  { label: 'League of Legends', emoji: '🎮' },
+  { label: 'Drake', emoji: '🎵' },
+  { label: 'Boxing', emoji: '🥊' },
+];
 
 function Aside() {
-  const [ref, inView] = useInView({ threshold: 0.4 });
+  const [ref, inView] = useInView({ threshold: 0.3 });
   return (
     <div ref={ref} className={`${styles.aside} ${inView ? styles.asideIn : ''}`}>
       <span className={styles.asideLabel}>off the clock</span>
       <h3 className={styles.asideTitle}>When I'm not building</h3>
       <div className={styles.asideChips}>
         {INTERESTS.map((item) => (
-          <span key={item} className={styles.asideChip}>
-            {item}
+          <span key={item.label} className={styles.asideChip}>
+            <span className={styles.chipEmoji}>{item.emoji}</span>
+            {item.label}
           </span>
         ))}
       </div>
@@ -119,7 +126,7 @@ function Aside() {
 export default function About() {
   return (
     <main className="page">
-      <Sparkles count={24} cols={4} parallax />
+      <Sparkles count={24} cols={4} />
       <div className={styles.about}>
         <Moment
           align="center"

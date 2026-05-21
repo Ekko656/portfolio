@@ -3,7 +3,7 @@
   z-index: 1;
   max-width: 1000px;
   margin: 0 auto;
-  padding: 40px clamp(24px, 5vw, 64px) 100px;
+  padding: 40px clamp(24px, 5vw, 64px) 40px;
 }
 
 .moment {
@@ -122,15 +122,16 @@
   transition: transform 0.45s var(--ease-bounce);
 }
 
-/* small, set-apart interests aside */
+/* set-apart interests aside */
 .aside {
-  max-width: 540px;
-  margin: 72px auto 0;
-  padding: 30px 28px;
-  background: rgba(232, 222, 245, 0.55);
+  max-width: 680px;
+  margin: 56px auto 0;
+  padding: clamp(32px, 5vw, 48px) clamp(28px, 5vw, 44px);
+  background: linear-gradient(150deg, rgba(232, 222, 245, 0.72), rgba(214, 168, 198, 0.18));
   border: 1px solid var(--card-border);
-  border-radius: 22px;
+  border-radius: 28px;
   text-align: center;
+  box-shadow: 0 18px 44px var(--accent-glow);
   opacity: 0;
   transform: translateY(24px);
 }
@@ -143,37 +144,51 @@
   display: block;
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
   color: var(--accent-deep);
 }
 .asideTitle {
   font-family: var(--font-hand);
-  font-size: 36px;
-  line-height: 1.2;
+  font-size: clamp(36px, 5vw, 50px);
+  line-height: 1.15;
   color: var(--violet);
-  margin: 2px 0 18px;
+  margin: 4px 0 26px;
 }
 .asideChips {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 14px;
   justify-content: center;
 }
 .asideChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 17px;
   color: var(--text);
   background: var(--surface);
-  border: 1px solid var(--accent);
+  border: 1.5px solid var(--accent);
   border-radius: 999px;
-  padding: 8px 16px;
+  padding: 12px 22px;
+  transition: transform 0.2s var(--ease-bounce), border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.asideChip:hover {
+  transform: translateY(-3px) rotate(-1.5deg);
+  border-color: var(--violet);
+  box-shadow: 0 10px 22px var(--accent-glow);
+}
+.chipEmoji {
+  font-size: 1.4em;
+  line-height: 1;
 }
 
 .cta {
   display: flex;
   justify-content: center;
-  padding: 28px 0 40px;
+  padding: 26px 0 8px;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -5,7 +5,7 @@ import Sparkles from './Sparkles.jsx';
 export default function Resume() {
   return (
     <main className="page">
-      <Sparkles count={14} cols={3} parallax />
+      <Sparkles count={14} cols={3} />
       <section className={styles.resume}>
         <Reveal>
           <div className={styles.head}>

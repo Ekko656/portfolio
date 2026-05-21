@@ -12,7 +12,7 @@ const LINKS = [
 export default function Contact() {
   return (
     <main className="page">
-      <Sparkles count={12} cols={3} parallax />
+      <Sparkles count={12} cols={3} />
       <section className={styles.contact}>
         <Reveal>
           <div className={styles.card}>

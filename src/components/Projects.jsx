@@ -10,7 +10,7 @@ export default function Projects() {
 
   return (
     <main className="page">
-      <Sparkles count={18} cols={4} parallax />
+      <Sparkles count={18} cols={4} />
       <section className={styles.projects}>
         <Reveal>
           <h2 className={styles.title}>Projects</h2>

@@ -8,8 +8,7 @@ export default function NavBar() {
   return (
     <nav className={styles.nav} aria-label="Primary">
       <NavLink to="/" className={styles.logo} aria-label="Home">
-        <Logo size={26} />
-        <span>Ekam</span>
+        <Logo size={32} />
       </NavLink>
       <div className={styles.links}>
         {ITEMS.map((item) => (
