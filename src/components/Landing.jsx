@@ -45,8 +45,16 @@ export default function Landing() {
 
         <nav className={styles.pills} aria-label="Sections">
           {NAV.map((item) => (
-            <Link key={item} to={`/${item}`} className="pill">
-              {item}
+            <Link key={item} to={`/${item}`} className={styles.navBtn}>
+              <span>{item}</span>
+              <svg
+                className={styles.navUnderline}
+                viewBox="0 0 100 8"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path d="M2 5 C 20 1, 36 8, 52 4 S 84 1, 98 5" />
+              </svg>
             </Link>
           ))}
         </nav>

@@ -90,6 +90,50 @@
   justify-content: center;
 }
 
+.navBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: lowercase;
+  padding: 10px 22px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  transition: background 0.2s ease-out, transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+.navBtn:hover {
+  background: var(--accent-soft);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 20px var(--accent-glow);
+}
+
+.navUnderline {
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  bottom: 5px;
+  height: 7px;
+  overflow: visible;
+  pointer-events: none;
+}
+.navUnderline path {
+  fill: none;
+  stroke: var(--violet);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  transition: stroke-dashoffset 0.5s var(--ease-reveal);
+}
+.navBtn:hover .navUnderline path {
+  stroke-dashoffset: 0;
+}
+
 .chevron {
   position: absolute;
   bottom: 36px;
