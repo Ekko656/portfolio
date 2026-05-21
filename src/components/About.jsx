@@ -24,6 +24,8 @@ function lineHeight(font) {
 
 function Moment({ align = 'center', stagger = 150, sparkle = false, lines }) {
   const [ref, inView] = useInView({ threshold: 0.4 });
+  const dir =
+    align === 'left' ? styles.dirLeft : align === 'right' ? styles.dirRight : styles.dirCenter;
 
   return (
     <div ref={ref} className={`${styles.moment} ${styles[align]}`}>
@@ -46,7 +48,9 @@ function Moment({ align = 'center', stagger = 150, sparkle = false, lines }) {
           return (
             <span
               key={i}
-              className={`${styles.line} ${inView ? styles.lineIn : ''} ${ln.className || ''}`}
+              className={`${styles.line} ${dir} ${ln.blur ? styles.blurLine : ''} ${
+                inView ? styles.lineIn : ''
+              } ${ln.className || ''}`}
               style={{
                 fontFamily: fontFamily(ln.font),
                 fontWeight: ln.weight || 400,
@@ -67,16 +71,29 @@ function Moment({ align = 'center', stagger = 150, sparkle = false, lines }) {
   );
 }
 
+const TRAIL_SIZES = [6, 8, 11, 8, 6];
+
 function Connector() {
-  const [ref, inView] = useInView({ threshold: 0.6 });
+  const [ref, inView] = useInView({ threshold: 0.5 });
   return (
     <div
       ref={ref}
       className={`${styles.connector} ${inView ? styles.connIn : ''}`}
       aria-hidden="true"
     >
-      <span className={styles.connLine} />
-      <span className={styles.connDot} />
+      <div className={styles.trail}>
+        {TRAIL_SIZES.map((s, i) => (
+          <span
+            key={i}
+            className={styles.trailOrb}
+            style={{
+              width: `${s}px`,
+              height: `${s}px`,
+              transitionDelay: inView ? `${i * 90}ms` : '0ms',
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -108,7 +125,7 @@ export default function About() {
           align="center"
           sparkle
           lines={[
-            { font: 'hand', size: 96, style: { color: 'var(--plum)' }, text: 'Who is engineering for?' },
+            { font: 'hand', size: 96, blur: true, style: { color: 'var(--plum)' }, text: 'Who is engineering for?' },
             { kind: 'underline', color: 'var(--accent)' },
           ]}
         />
@@ -163,10 +180,11 @@ export default function About() {
           align="center"
           sparkle
           lines={[
-            { font: 'hand', size: 80, text: 'I want to spend my life' },
+            { font: 'hand', size: 80, blur: true, text: 'I want to spend my life' },
             {
               font: 'hand',
               size: 80,
+              blur: true,
               text: (
                 <>
                   pointed <span className="em-plum">somewhere else.</span>
@@ -260,6 +278,7 @@ export default function About() {
             {
               font: 'hand',
               size: 72,
+              blur: true,
               style: { marginTop: '0.12em' },
               text: (
                 <>
@@ -280,6 +299,7 @@ export default function About() {
             {
               font: 'hand',
               size: 104,
+              blur: true,
               style: { marginTop: '0.16em', color: 'var(--plum)' },
               text: 'Engineering with purpose.',
             },

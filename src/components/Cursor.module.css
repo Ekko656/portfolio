@@ -8,42 +8,49 @@
   will-change: transform;
 }
 
-.scale {
-  transition: transform 0.18s ease-out;
+/* faint purple glow halo — appears over text */
+.glow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  background: radial-gradient(
+    circle,
+    rgba(126, 96, 176, 0.3) 0%,
+    rgba(126, 96, 176, 0.12) 40%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.spin {
-  width: 14px;
-  height: 14px;
-  animation: cursor-spin 8s linear infinite;
+/* the orb itself */
+.core {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 35% 30%, #c9b3e6, #a68bc9 70%);
+  box-shadow: 0 0 8px rgba(184, 164, 212, 0.7);
+  transition: transform 0.18s ease-out, background 0.18s ease-out;
 }
 
-.spin svg {
-  display: block;
-  width: 14px;
-  height: 14px;
+.isText .glow {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }
 
-.path {
-  fill: var(--accent);
-  transition: fill 0.18s ease-out;
+.isHover .core {
+  transform: translate(-50%, -50%) scale(1.55);
+  background: radial-gradient(circle at 35% 30%, #b8a4d4, #7e60b0 70%);
 }
-
-.isHover .scale {
-  transform: scale(1.4);
-}
-.isHover .path {
-  fill: var(--accent-deep);
-}
-
-@keyframes cursor-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .spin {
-    animation: none;
-  }
+.isHover .glow {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.05);
 }

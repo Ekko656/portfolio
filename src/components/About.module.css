@@ -7,8 +7,7 @@
 .moment {
   position: relative;
   width: 100%;
-  min-height: 50vh;
-  padding: 40px 0;
+  padding: 24px 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -45,13 +44,27 @@
   display: block;
   margin-bottom: 0.18em;
   opacity: 0;
-  transform: translateY(30px);
-  will-change: transform, opacity;
+  will-change: transform, opacity, filter;
+}
+/* direction-aware entrances for more character than a plain fade */
+.dirCenter {
+  transform: translateY(34px) scale(0.95);
+}
+.dirLeft {
+  transform: translateX(-46px) rotate(-1.2deg);
+}
+.dirRight {
+  transform: translateX(46px) rotate(1.2deg);
+}
+.blurLine {
+  filter: blur(11px);
 }
 .lineIn {
   opacity: 1;
   transform: none;
-  transition: opacity 0.7s var(--ease-reveal), transform 0.7s var(--ease-reveal);
+  filter: none;
+  transition: opacity 0.7s var(--ease-reveal), transform 0.85s var(--ease-reveal),
+    filter 0.85s var(--ease-reveal);
 }
 
 /* hand-drawn underline that draws itself on reveal */
@@ -81,36 +94,30 @@
 }
 
 /* connector between moments */
+/* orb-trail connector: a column of orbs filling a set share of the gap */
 .connector {
+  height: 20vh;
+  min-height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.trail {
+  height: 64%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 8px 0;
+  justify-content: space-between;
 }
-.connLine {
-  width: 0;
-  height: 56px;
-  border-left: 2px dashed var(--accent);
-  transform: scaleY(0);
-  transform-origin: top;
-  opacity: 0.7;
-}
-.connIn .connLine {
-  transform: scaleY(1);
-  transition: transform 0.6s var(--ease-reveal);
-}
-.connDot {
-  width: 9px;
-  height: 9px;
+.trailOrb {
   border-radius: 50%;
-  background: var(--accent-deep);
-  box-shadow: 0 0 0 4px rgba(184, 164, 212, 0.22);
+  background: radial-gradient(circle at 35% 30%, var(--accent) 0%, var(--accent-deep) 72%);
+  box-shadow: 0 0 7px rgba(184, 164, 212, 0.55);
   transform: scale(0);
 }
-.connIn .connDot {
+.connIn .trailOrb {
   transform: scale(1);
-  transition: transform 0.5s var(--ease-bounce) 0.25s;
+  transition: transform 0.45s var(--ease-bounce);
 }
 
 /* small, set-apart interests aside */
@@ -178,6 +185,7 @@
   .line {
     opacity: 1;
     transform: none;
+    filter: none;
   }
   .deco {
     opacity: 1;
@@ -186,10 +194,7 @@
   .deco path {
     stroke-dashoffset: 0;
   }
-  .connLine {
-    transform: scaleY(1);
-  }
-  .connDot {
+  .trailOrb {
     transform: scale(1);
   }
 }

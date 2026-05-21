@@ -5,11 +5,11 @@
   pointer-events: none;
 }
 
-/* soft drifting bokeh orbs */
+/* soft but defined floating orbs (radial fill, only a touch of blur) */
 .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(14px);
+  filter: blur(0.5px);
   will-change: transform, opacity;
   animation: orb-float ease-in-out infinite alternate;
 }
@@ -17,17 +17,17 @@
 @keyframes orb-float {
   from {
     transform: translate(0, 0) scale(1);
-    opacity: var(--o1, 0.18);
+    opacity: var(--o1, 0.3);
   }
   to {
-    transform: translate(var(--dx, 4vw), var(--dy, -3vh)) scale(var(--ds, 1.18));
-    opacity: var(--o2, 0.32);
+    transform: translate(var(--dx, 4vw), var(--dy, -3vh)) scale(var(--ds, 1.15));
+    opacity: var(--o2, 0.5);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .orb {
     animation: none;
-    opacity: var(--o1, 0.22);
+    opacity: var(--o1, 0.36);
   }
 }
