@@ -26,41 +26,42 @@
   background: radial-gradient(circle at 35% 30%, #b8a4d4, #7e60b0 70%);
 }
 
-/* tiny faint glow that fades out — the cursor's own halo */
+/* small, faint, light-purple glow — the cursor's own halo */
 .glow {
   position: absolute;
   left: 0;
   top: 0;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
   background: radial-gradient(
     circle,
-    rgba(140, 110, 205, 0.16) 0%,
-    rgba(140, 110, 205, 0.05) 44%,
+    rgba(172, 132, 236, 0.28) 0%,
+    rgba(172, 132, 236, 0.1) 46%,
     transparent 72%
   );
 }
 
-/* screen-blend disc: lifts dark text to neon purple, leaves the light bg almost
-   untouched, so the recolor is a surprise that shows up only on the letters */
-.neon {
+/* color-blend disc: turns the letters within it a deep, saturated purple
+   (soft fade, so the surround is a light-purple glow rather than a hard ring) */
+.recolor {
   position: fixed;
   left: 0;
   top: 0;
-  width: 58px;
-  height: 58px;
+  width: 104px;
+  height: 104px;
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9998;
+  z-index: 9997;
   will-change: transform;
-  mix-blend-mode: screen;
+  mix-blend-mode: color;
   background: radial-gradient(
     circle,
-    rgba(150, 84, 248, 0.78) 0%,
-    rgba(140, 78, 245, 0.4) 44%,
-    rgba(140, 78, 245, 0.12) 62%,
-    transparent 76%
+    rgba(123, 47, 247, 0.95) 0%,
+    rgba(123, 47, 247, 0.72) 30%,
+    rgba(123, 47, 247, 0.36) 56%,
+    rgba(123, 47, 247, 0.12) 72%,
+    transparent 84%
   );
 }

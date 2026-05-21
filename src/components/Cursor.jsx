@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './Cursor.module.css';
 
 const HOVER_SELECTOR = 'a, button, .pill, [data-hover]';
-const NEON_HALF = 29; // half of .neon
+const RECOLOR_HALF = 52; // half of .recolor
 
 export default function Cursor() {
   const rootRef = useRef(null);
-  const neonRef = useRef(null);
+  const recolorRef = useRef(null);
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -23,11 +23,11 @@ export default function Cursor() {
         const overHover = e.target.closest && e.target.closest(HOVER_SELECTOR);
         rootRef.current.classList.toggle(styles.isHover, !!overHover);
       }
-      if (neonRef.current)
-        neonRef.current.style.transform = `translate(${x - NEON_HALF}px, ${y - NEON_HALF}px)`;
+      if (recolorRef.current)
+        recolorRef.current.style.transform = `translate(${x - RECOLOR_HALF}px, ${y - RECOLOR_HALF}px)`;
     };
     const setVis = (v) => {
-      [rootRef, neonRef].forEach((r) => {
+      [rootRef, recolorRef].forEach((r) => {
         if (r.current) r.current.style.opacity = v;
       });
     };
@@ -50,7 +50,7 @@ export default function Cursor() {
 
   return (
     <>
-      <div ref={neonRef} className={styles.neon} aria-hidden="true" />
+      <div ref={recolorRef} className={styles.recolor} aria-hidden="true" />
       <div ref={rootRef} className={styles.cursor} aria-hidden="true">
         <span className={styles.glow} />
         <span className={styles.core} />
