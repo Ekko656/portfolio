@@ -65,7 +65,12 @@ export default function ProjectModal({ project, onClose }) {
           </div>
         ) : project.image ? (
           <div className={styles.shot}>
-            <img src={project.image} alt={`${project.name} preview`} loading="lazy" />
+            <img
+              src={project.image}
+              alt={`${project.name} preview`}
+              loading="lazy"
+              style={project.objectPosition ? { objectPosition: project.objectPosition } : undefined}
+            />
           </div>
         ) : null}
 
