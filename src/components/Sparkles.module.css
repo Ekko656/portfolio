@@ -11,31 +11,35 @@
   border-radius: 50%;
   filter: blur(0.5px);
   will-change: transform, opacity;
-  animation: orb-drift ease-in-out infinite;
+  /* linear = constant speed (no decelerate-to-a-stop at each waypoint) */
+  animation: orb-drift linear infinite;
 }
 
-/* a gentle, meandering loop through three small random waypoints,
-   returning to the start so it tiles seamlessly */
+/* a small closed loop: the orb keeps drifting around at a steady pace and
+   never reverses or stops. opacity breathes gently and independently. */
 @keyframes orb-drift {
   0% {
-    transform: translate(0, 0) scale(1);
-    opacity: var(--o1, 0.3);
+    transform: translate(0, 0);
+    opacity: var(--o1, 0.34);
   }
-  22% {
-    transform: translate(var(--x1, 2vw), var(--y1, -2vh)) scale(var(--s1, 1.08));
-    opacity: var(--o2, 0.5);
+  20% {
+    transform: translate(var(--x1, 2vw), var(--y1, 1vh));
   }
-  46% {
-    transform: translate(var(--x2, -2vw), var(--y2, 3vh)) scale(var(--s2, 0.96));
-    opacity: var(--o1, 0.3);
+  40% {
+    transform: translate(var(--x2, 1vw), var(--y2, 3vh));
   }
-  72% {
-    transform: translate(var(--x3, 3vw), var(--y3, 2vh)) scale(var(--s3, 1.12));
-    opacity: var(--o2, 0.5);
+  50% {
+    opacity: var(--o2, 0.55);
+  }
+  60% {
+    transform: translate(var(--x3, -2vw), var(--y3, 2vh));
+  }
+  80% {
+    transform: translate(var(--x4, -1vw), var(--y4, -1vh));
   }
   100% {
-    transform: translate(0, 0) scale(1);
-    opacity: var(--o1, 0.3);
+    transform: translate(0, 0);
+    opacity: var(--o1, 0.34);
   }
 }
 

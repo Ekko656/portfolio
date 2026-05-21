@@ -11,26 +11,39 @@ export default function FloatingOrbs({ count = 12, parallax = false, cols: colsP
   const items = useMemo(() => {
     const cols = colsProp || Math.max(1, Math.round(Math.sqrt(count)));
     const rows = Math.ceil(count / cols);
-    const off = () => rand(-4.2, 4.2).toFixed(1); // small per-waypoint offset
+    const TAU = Math.PI * 2;
     return Array.from({ length: count }, (_, i) => {
       const col = i % cols;
       const row = Math.floor(i / cols);
+      // each orb drifts around a small closed loop (no reversal, no stops):
+      // 4 waypoints evenly spaced around a circle of random radius/phase/direction
+      const phase = rand(0, TAU);
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      const r = rand(2.2, 4); // drift radius
+      const wp = (k) => {
+        const a = phase + dir * k * (TAU / 5);
+        return [
+          ((Math.cos(a) - Math.cos(phase)) * r).toFixed(2),
+          ((Math.sin(a) - Math.sin(phase)) * r).toFixed(2),
+        ];
+      };
+      const [x1, y1] = wp(1);
+      const [x2, y2] = wp(2);
+      const [x3, y3] = wp(3);
+      const [x4, y4] = wp(4);
       return {
         left: ((col + 0.5 + rand(-0.34, 0.34)) / cols) * 100,
         top: ((row + 0.5 + rand(-0.34, 0.34)) / rows) * 100,
         size: rand(10, 28),
-        // three small random waypoints → a natural meander, not a straight back-and-forth
-        x1: `${off()}vw`, y1: `${off()}vh`,
-        x2: `${off()}vw`, y2: `${off()}vh`,
-        x3: `${off()}vw`, y3: `${off()}vh`,
-        s1: rand(0.94, 1.12).toFixed(2),
-        s2: rand(0.9, 1.08).toFixed(2),
-        s3: rand(0.95, 1.14).toFixed(2),
-        dur: rand(11, 20).toFixed(1),
-        delay: (-rand(0, 16)).toFixed(1),
+        x1: `${x1}vw`, y1: `${y1}vh`,
+        x2: `${x2}vw`, y2: `${y2}vh`,
+        x3: `${x3}vw`, y3: `${y3}vh`,
+        x4: `${x4}vw`, y4: `${y4}vh`,
+        dur: rand(24, 40).toFixed(1),
+        delay: (-rand(0, 36)).toFixed(1),
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        o1: rand(0.22, 0.4).toFixed(2),
-        o2: rand(0.48, 0.72).toFixed(2),
+        o1: rand(0.24, 0.4).toFixed(2),
+        o2: rand(0.46, 0.7).toFixed(2),
       };
     });
   }, [count, colsProp]);
@@ -73,9 +86,8 @@ export default function FloatingOrbs({ count = 12, parallax = false, cols: colsP
             '--y2': o.y2,
             '--x3': o.x3,
             '--y3': o.y3,
-            '--s1': o.s1,
-            '--s2': o.s2,
-            '--s3': o.s3,
+            '--x4': o.x4,
+            '--y4': o.y4,
             '--o1': o.o1,
             '--o2': o.o2,
           }}
