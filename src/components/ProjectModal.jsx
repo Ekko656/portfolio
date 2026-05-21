@@ -49,6 +49,18 @@ export default function ProjectModal({ project, onClose }) {
         <h3 className={styles.name}>{project.name}</h3>
         <p className={styles.desc}>{project.description}</p>
 
+        {project.video && (
+          <div className={styles.video}>
+            <iframe
+              src={`https://www.youtube.com/embed/${project.video}`}
+              title={`${project.name} demo`}
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          </div>
+        )}
+
         <div className={styles.chips}>
           {project.stack.map((tech) => (
             <span key={tech} className={styles.chip}>
@@ -58,14 +70,17 @@ export default function ProjectModal({ project, onClose }) {
         </div>
 
         <div className={styles.actions}>
-          <a
-            className="pill"
-            href={project.link.href}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {project.link.label}
-          </a>
+          {project.links.map((l) => (
+            <a
+              key={l.label}
+              className="pill"
+              href={l.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {l.label}
+            </a>
+          ))}
         </div>
       </div>
     </div>
