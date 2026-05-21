@@ -1,5 +1,6 @@
 import styles from './Contact.module.css';
 import Reveal from './Reveal.jsx';
+import Sparkles from './Sparkles.jsx';
 
 const LINKS = [
   { label: 'ekooner656@gmail.com', href: 'mailto:ekooner656@gmail.com' },
@@ -10,6 +11,7 @@ const LINKS = [
 export default function Contact() {
   return (
     <main className="page">
+      <Sparkles count={12} cols={3} parallax />
       <section className={styles.contact}>
         <Reveal>
           <div className={styles.card}>

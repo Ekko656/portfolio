@@ -1,4 +1,6 @@
 .resume {
+  position: relative;
+  z-index: 1;
   min-height: calc(100vh - 84px);
   padding: 56px clamp(20px, 5vw, 64px) 100px;
 }

@@ -3,7 +3,7 @@ import styles from './Cursor.module.css';
 
 const HOVER_SELECTOR = 'a, button, .pill, [data-hover]';
 const RECOLOR_HALF = 52; // half of .recolor
-const NEON_HALF = 47; // half of .neon
+const NEON_HALF = 20; // half of .neon
 
 export default function Cursor() {
   const rootRef = useRef(null);

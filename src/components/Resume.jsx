@@ -1,9 +1,11 @@
 import styles from './Resume.module.css';
 import Reveal from './Reveal.jsx';
+import Sparkles from './Sparkles.jsx';
 
 export default function Resume() {
   return (
     <main className="page">
+      <Sparkles count={14} cols={3} parallax />
       <section className={styles.resume}>
         <Reveal>
           <div className={styles.head}>

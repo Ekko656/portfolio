@@ -3,12 +3,14 @@ import styles from './Projects.module.css';
 import { projects } from '../data/projects.js';
 import Reveal from './Reveal.jsx';
 import ProjectModal from './ProjectModal.jsx';
+import Sparkles from './Sparkles.jsx';
 
 export default function Projects() {
   const [active, setActive] = useState(null);
 
   return (
     <main className="page">
+      <Sparkles count={18} cols={4} parallax />
       <section className={styles.projects}>
         <Reveal>
           <h2 className={styles.title}>Projects</h2>

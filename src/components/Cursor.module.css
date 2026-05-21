@@ -47,13 +47,13 @@
   );
 }
 
-/* neon disc: lifts the brightness of that text so it reads as glowing neon */
+/* small faint glow around the cursor itself */
 .neon {
   position: fixed;
   left: 0;
   top: 0;
-  width: 94px;
-  height: 94px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 9998;
@@ -61,8 +61,8 @@
   mix-blend-mode: screen;
   background: radial-gradient(
     circle,
-    rgba(167, 110, 255, 0.8) 0%,
-    rgba(150, 90, 245, 0.38) 48%,
+    rgba(155, 115, 240, 0.32) 0%,
+    rgba(150, 90, 245, 0.14) 50%,
     transparent 74%
   );
 }
