@@ -18,14 +18,14 @@ export default function FloatingOrbs({ count = 12, parallax = false, cols: colsP
         left: ((col + 0.5 + rand(-0.34, 0.34)) / cols) * 100,
         top: ((row + 0.5 + rand(-0.34, 0.34)) / rows) * 100,
         size: rand(10, 28),
-        dx: `${rand(-5, 5).toFixed(1)}vw`,
-        dy: `${rand(-5, 5).toFixed(1)}vh`,
-        ds: rand(1.05, 1.25).toFixed(2),
-        dur: rand(7, 14).toFixed(1),
-        delay: rand(-10, 0).toFixed(1),
+        dx: `${rand(-9, 9).toFixed(1)}vw`,
+        dy: `${rand(-9, 9).toFixed(1)}vh`,
+        ds: rand(0.82, 1.42).toFixed(2),
+        dur: rand(4.5, 9).toFixed(1),
+        delay: rand(-9, 0).toFixed(1),
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        o1: rand(0.25, 0.4).toFixed(2),
-        o2: rand(0.45, 0.7).toFixed(2),
+        o1: rand(0.22, 0.4).toFixed(2),
+        o2: rand(0.5, 0.78).toFixed(2),
       };
     });
   }, [count, colsProp]);

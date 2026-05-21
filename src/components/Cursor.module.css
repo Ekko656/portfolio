@@ -47,23 +47,22 @@
   );
 }
 
-/* small faint glow around the cursor itself */
+/* very faint, soft fading glow around the cursor (not a neon halo) */
 .neon {
   position: fixed;
   left: 0;
   top: 0;
-  width: 40px;
-  height: 40px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 9998;
   will-change: transform;
-  mix-blend-mode: screen;
   background: radial-gradient(
     circle,
-    rgba(155, 115, 240, 0.32) 0%,
-    rgba(150, 90, 245, 0.14) 50%,
-    transparent 74%
+    rgba(140, 110, 200, 0.12) 0%,
+    rgba(140, 110, 200, 0.05) 38%,
+    transparent 70%
   );
 }
 
