@@ -2,6 +2,7 @@ export const projects = [
   {
     name: 'HoneyKey',
     tag: 'Security',
+    image: '/projects/honeykey.png',
     description:
       'A honeypot API that logs and classifies attacker behavior in real time, then generates SOC-style reports. Built in a weekend at nwHacks, finished as a Best Cybersecurity Hack finalist.',
     stack: ['Python', 'FastAPI', 'SQLite', 'MITRE ATT&CK'],
@@ -14,6 +15,7 @@ export const projects = [
   {
     name: 'Barrage',
     tag: 'Backend',
+    image: '/projects/barrage.png',
     description:
       'A concurrent API load tester that fires thousands of simultaneous requests and visualizes response times in a live dashboard. Useful for finding the exact point an API starts to break.',
     stack: ['Java', 'Spring Boot', 'JUnit 5', 'jQuery'],
@@ -36,9 +38,12 @@ export const projects = [
   {
     name: 'VEX Robotics',
     tag: 'Robotics',
+    image: '/projects/vex.jpg',
     description:
       "Built autonomous navigation for my high school's VEX team across two years. We finished as Alberta's top-ranked team and competed at the World Championship in Dallas.",
     stack: ['C++', 'PID', 'Pure Pursuit', 'Odometry'],
+    // TODO: confirm full list from LinkedIn honors (all VEX except HSEC)
+    awards: ['Judges Award, 2023-2024'],
     links: [{ label: 'GitHub', href: 'https://github.com/dependra123/3300F2023-2024-code' }],
   },
 ];

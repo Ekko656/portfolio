@@ -25,8 +25,22 @@ export default function Projects() {
               onClick={() => setActive(project)}
               aria-label={`Open ${project.name} details`}
             >
-              <span className={styles.name}>{project.name}</span>
-              <span className={styles.cardTag}>{project.tag}</span>
+              {project.image && (
+                <img
+                  className={styles.thumb}
+                  src={project.image}
+                  alt=""
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              )}
+              <span className={styles.cardOverlay} />
+              <span className={styles.cardText}>
+                <span className={styles.name}>{project.name}</span>
+                <span className={styles.cardTag}>{project.tag}</span>
+              </span>
             </button>
           </Reveal>
         ))}

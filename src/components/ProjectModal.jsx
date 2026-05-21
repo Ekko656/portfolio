@@ -49,7 +49,7 @@ export default function ProjectModal({ project, onClose }) {
         <h3 className={styles.name}>{project.name}</h3>
         <p className={styles.desc}>{project.description}</p>
 
-        {project.video && (
+        {project.video ? (
           <div className={styles.video}>
             <iframe
               src={`https://www.youtube.com/embed/${project.video}`}
@@ -59,7 +59,11 @@ export default function ProjectModal({ project, onClose }) {
               allowFullScreen
             />
           </div>
-        )}
+        ) : project.image ? (
+          <div className={styles.shot}>
+            <img src={project.image} alt={`${project.name} preview`} loading="lazy" />
+          </div>
+        ) : null}
 
         <div className={styles.chips}>
           {project.stack.map((tech) => (
@@ -68,6 +72,25 @@ export default function ProjectModal({ project, onClose }) {
             </span>
           ))}
         </div>
+
+        {project.awards && (
+          <div className={styles.awards}>
+            <span className={styles.awardsHead}>Awards</span>
+            <ul>
+              {project.awards.map((a) => (
+                <li key={a}>
+                  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                    <path
+                      d="M12 2c.9 6.5 4.6 10.2 11.1 11.1C16.6 12 12.9 15.7 12 22.2 11.1 15.7 7.4 12 .9 11.1 7.4 10.2 11.1 6.5 12 2z"
+                      fill="var(--accent-deep)"
+                    />
+                  </svg>
+                  {a}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className={styles.actions}>
           {project.links.map((l) => (
