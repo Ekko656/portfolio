@@ -31,6 +31,7 @@ export default function Projects() {
                   src={project.image}
                   alt=""
                   loading="lazy"
+                  style={project.objectPosition ? { objectPosition: project.objectPosition } : undefined}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}

@@ -59,6 +59,10 @@ export default function ProjectModal({ project, onClose }) {
               allowFullScreen
             />
           </div>
+        ) : project.videoFile ? (
+          <div className={styles.videoLocal}>
+            <video src={project.videoFile} controls playsInline preload="metadata" />
+          </div>
         ) : project.image ? (
           <div className={styles.shot}>
             <img src={project.image} alt={`${project.name} preview`} loading="lazy" />

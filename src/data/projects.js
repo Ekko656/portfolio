@@ -27,6 +27,8 @@ export const projects = [
   {
     name: 'UBC Bionics',
     tag: 'Embedded',
+    image: '/projects/ubc-bionics.jpg',
+    videoFile: '/projects/ubc-bionics.mp4',
     description:
       'Embedded software for a trans-radial prosthetic arm. Working on the Rust codebase that handles the lower-level systems work.',
     stack: ['Rust', 'PyO3', 'STM32', 'I²C'],
@@ -39,6 +41,7 @@ export const projects = [
     name: 'VEX Robotics',
     tag: 'Robotics',
     image: '/projects/vex.png',
+    objectPosition: 'center 42%',
     description:
       "Built autonomous navigation for my high school's VEX team across two years. We finished as Alberta's top-ranked team and competed at the World Championship in Dallas.",
     stack: ['C++', 'PID', 'Pure Pursuit', 'Odometry'],
