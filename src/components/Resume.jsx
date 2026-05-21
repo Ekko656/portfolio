@@ -6,18 +6,31 @@ export default function Resume() {
     <main className="page">
       <section className={styles.resume}>
         <Reveal>
-          <div className={styles.card}>
+          <div className={styles.head}>
             <h2 className={styles.title}>Résumé</h2>
             <p className={styles.line}>The short version, on paper.</p>
-            <a
-              className="pill"
-              style={{ textTransform: 'none' }}
-              href="/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Download PDF ↓
-            </a>
+            <div className={styles.actions}>
+              <a
+                className="pill"
+                style={{ textTransform: 'none' }}
+                href="/resume.pdf"
+                download="Ekam-Kooner-Resume.pdf"
+              >
+                Download PDF ↓
+              </a>
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <div className={styles.viewer}>
+            <object data="/resume.pdf#view=FitH&toolbar=0" type="application/pdf">
+              <iframe src="/resume.pdf#view=FitH&toolbar=0" title="Ekam Kooner résumé">
+                <p className={styles.fallback}>
+                  Your browser can't display the PDF here. Use the download button above.
+                </p>
+              </iframe>
+            </object>
           </div>
         </Reveal>
       </section>

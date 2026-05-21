@@ -1,33 +1,53 @@
 .resume {
   min-height: calc(100vh - 84px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60px clamp(24px, 6vw, 80px);
+  padding: 56px clamp(20px, 5vw, 64px) 100px;
 }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--card-border);
-  border-radius: 26px;
-  padding: clamp(36px, 6vw, 64px);
+.head {
   text-align: center;
-  max-width: 540px;
-  width: 100%;
-  box-shadow: 0 24px 60px var(--accent-glow);
 }
-
 .title {
   font-family: var(--font-hand);
   font-size: clamp(48px, 7vw, 68px);
   line-height: 1.25;
   color: var(--plum);
 }
-
 .line {
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 18px;
   color: var(--text-soft);
-  margin: 10px 0 30px;
+  margin: 8px 0 22px;
+}
+.actions {
+  margin-bottom: 30px;
+}
+
+.viewer {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  aspect-ratio: 8.5 / 11;
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px var(--accent-glow);
+}
+.viewer iframe,
+.viewer object {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--text-soft);
 }
