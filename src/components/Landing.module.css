@@ -118,10 +118,11 @@
 }
 .navUnderline {
   position: absolute;
-  left: -4px;
-  right: -4px;
+  left: 50%;
   bottom: -7px;
+  width: calc(100% + 10px);
   height: 9px;
+  transform: translateX(-50%);
   overflow: visible;
   pointer-events: none;
 }

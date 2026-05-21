@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './Cursor.module.css';
 
 const HOVER_SELECTOR = 'a, button, .pill, [data-hover]';
-const RECOLOR_HALF = 29; // half of .recolor
-const NEON_HALF = 26; // half of .neon
+const RECOLOR_HALF = 52; // half of .recolor
+const NEON_HALF = 47; // half of .neon
 
 export default function Cursor() {
   const rootRef = useRef(null);
