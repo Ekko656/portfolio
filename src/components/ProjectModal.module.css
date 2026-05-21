@@ -116,16 +116,34 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 14px;
 }
 .awards li {
   display: flex;
-  align-items: center;
-  gap: 9px;
+  align-items: flex-start;
+  gap: 10px;
+}
+.awards li svg {
+  flex: none;
+  margin-top: 3px;
+}
+.awardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.awardTitle {
   font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 15px;
   color: var(--text);
+}
+.awardNote {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-soft);
 }
 
 .chips {

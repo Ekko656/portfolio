@@ -78,14 +78,17 @@ export default function ProjectModal({ project, onClose }) {
             <span className={styles.awardsHead}>Awards</span>
             <ul>
               {project.awards.map((a) => (
-                <li key={a}>
-                  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                <li key={a.title}>
+                  <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
                     <path
                       d="M12 2c.9 6.5 4.6 10.2 11.1 11.1C16.6 12 12.9 15.7 12 22.2 11.1 15.7 7.4 12 .9 11.1 7.4 10.2 11.1 6.5 12 2z"
                       fill="var(--accent-deep)"
                     />
                   </svg>
-                  {a}
+                  <span className={styles.awardBody}>
+                    <span className={styles.awardTitle}>{a.title}</span>
+                    {a.note && <span className={styles.awardNote}>{a.note}</span>}
+                  </span>
                 </li>
               ))}
             </ul>

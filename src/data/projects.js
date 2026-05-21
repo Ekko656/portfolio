@@ -38,12 +38,28 @@ export const projects = [
   {
     name: 'VEX Robotics',
     tag: 'Robotics',
-    image: '/projects/vex.jpg',
+    image: '/projects/vex.png',
     description:
       "Built autonomous navigation for my high school's VEX team across two years. We finished as Alberta's top-ranked team and competed at the World Championship in Dallas.",
     stack: ['C++', 'PID', 'Pure Pursuit', 'Odometry'],
-    // TODO: confirm full list from LinkedIn honors (all VEX except HSEC)
-    awards: ['Judges Award, 2023-2024'],
+    awards: [
+      {
+        title: 'VEX Robotics Tournament Champion',
+        note: 'Awarded VEX Robotics Tournament Champion for excellence in robot design, programming, and competition strategy. Contributed to both technical development and team collaboration to achieve first place.',
+      },
+      {
+        title: 'VEX Robotics Judges Award',
+        note: 'Effectively showcased perseverance, creativity, and collaboration as a team. Recognized for our well-rounded and complex robot by a team of qualified judges in the engineering field.',
+      },
+      {
+        title: 'VEX Robotics Design Award',
+        note: 'Recognized for engineering skills and innovations that led to having the best-designed robot at a local competition open to teams throughout Alberta & Saskatchewan.',
+      },
+      {
+        title: 'Top 15 Mecha Mayhem Finalist',
+        note: "Top 15 finalist at Mecha Mayhem, Canada's largest international competition involving over 260 teams from China, Australia, UK, Brazil and more. A Robotics World Championship qualifying tournament. Showcased exceptional team dynamics and personally applied complex autonomous functions to lead the team to a top 15 spot.",
+      },
+    ],
     links: [{ label: 'GitHub', href: 'https://github.com/dependra123/3300F2023-2024-code' }],
   },
 ];
