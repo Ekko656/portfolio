@@ -16,10 +16,18 @@
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
   font-family: var(--font-hand);
   font-size: 28px;
   line-height: 1;
   color: var(--plum);
+}
+.logo svg {
+  flex: none;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(126, 96, 176, 0.32);
 }
 
 .links {

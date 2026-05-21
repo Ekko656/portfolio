@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import styles from './ProjectModal.module.css';
+import { Icon, iconForLink } from './Icons.jsx';
 
 export default function ProjectModal({ project, onClose }) {
   const [visible, setVisible] = useState(false);
@@ -113,6 +114,7 @@ export default function ProjectModal({ project, onClose }) {
               target="_blank"
               rel="noopener noreferrer"
             >
+              <Icon name={iconForLink(l.label, l.href)} size={15} />
               {l.label}
             </a>
           ))}
