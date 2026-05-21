@@ -27,7 +27,7 @@ export const projects = [
   {
     name: 'UBC Bionics',
     tag: 'Embedded',
-    image: '/projects/ubc-bionics.jpg',
+    image: '/projects/ubcbionics.png',
     videoFile: '/projects/ubc-bionics.mp4',
     description:
       'Embedded software for a trans-radial prosthetic arm. Working on the Rust codebase that handles the lower-level systems work.',
