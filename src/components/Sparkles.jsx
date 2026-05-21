@@ -11,6 +11,7 @@ export default function FloatingOrbs({ count = 12, parallax = false, cols: colsP
   const items = useMemo(() => {
     const cols = colsProp || Math.max(1, Math.round(Math.sqrt(count)));
     const rows = Math.ceil(count / cols);
+    const off = () => rand(-4.2, 4.2).toFixed(1); // small per-waypoint offset
     return Array.from({ length: count }, (_, i) => {
       const col = i % cols;
       const row = Math.floor(i / cols);
@@ -18,14 +19,18 @@ export default function FloatingOrbs({ count = 12, parallax = false, cols: colsP
         left: ((col + 0.5 + rand(-0.34, 0.34)) / cols) * 100,
         top: ((row + 0.5 + rand(-0.34, 0.34)) / rows) * 100,
         size: rand(10, 28),
-        dx: `${rand(-9, 9).toFixed(1)}vw`,
-        dy: `${rand(-9, 9).toFixed(1)}vh`,
-        ds: rand(0.82, 1.42).toFixed(2),
-        dur: rand(4.5, 9).toFixed(1),
-        delay: rand(-9, 0).toFixed(1),
+        // three small random waypoints → a natural meander, not a straight back-and-forth
+        x1: `${off()}vw`, y1: `${off()}vh`,
+        x2: `${off()}vw`, y2: `${off()}vh`,
+        x3: `${off()}vw`, y3: `${off()}vh`,
+        s1: rand(0.94, 1.12).toFixed(2),
+        s2: rand(0.9, 1.08).toFixed(2),
+        s3: rand(0.95, 1.14).toFixed(2),
+        dur: rand(11, 20).toFixed(1),
+        delay: (-rand(0, 16)).toFixed(1),
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
         o1: rand(0.22, 0.4).toFixed(2),
-        o2: rand(0.5, 0.78).toFixed(2),
+        o2: rand(0.48, 0.72).toFixed(2),
       };
     });
   }, [count, colsProp]);
@@ -62,9 +67,15 @@ export default function FloatingOrbs({ count = 12, parallax = false, cols: colsP
             background: `radial-gradient(circle at 35% 30%, ${o.color} 0%, ${o.color} 35%, transparent 72%)`,
             animationDuration: `${o.dur}s`,
             animationDelay: `${o.delay}s`,
-            '--dx': o.dx,
-            '--dy': o.dy,
-            '--ds': o.ds,
+            '--x1': o.x1,
+            '--y1': o.y1,
+            '--x2': o.x2,
+            '--y2': o.y2,
+            '--x3': o.x3,
+            '--y3': o.y3,
+            '--s1': o.s1,
+            '--s2': o.s2,
+            '--s3': o.s3,
             '--o1': o.o1,
             '--o2': o.o2,
           }}

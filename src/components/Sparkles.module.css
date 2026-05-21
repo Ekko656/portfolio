@@ -11,17 +11,31 @@
   border-radius: 50%;
   filter: blur(0.5px);
   will-change: transform, opacity;
-  animation: orb-float ease-in-out infinite alternate;
+  animation: orb-drift ease-in-out infinite;
 }
 
-@keyframes orb-float {
-  from {
+/* a gentle, meandering loop through three small random waypoints,
+   returning to the start so it tiles seamlessly */
+@keyframes orb-drift {
+  0% {
     transform: translate(0, 0) scale(1);
     opacity: var(--o1, 0.3);
   }
-  to {
-    transform: translate(var(--dx, 4vw), var(--dy, -3vh)) scale(var(--ds, 1.15));
+  22% {
+    transform: translate(var(--x1, 2vw), var(--y1, -2vh)) scale(var(--s1, 1.08));
     opacity: var(--o2, 0.5);
+  }
+  46% {
+    transform: translate(var(--x2, -2vw), var(--y2, 3vh)) scale(var(--s2, 0.96));
+    opacity: var(--o1, 0.3);
+  }
+  72% {
+    transform: translate(var(--x3, 3vw), var(--y3, 2vh)) scale(var(--s3, 1.12));
+    opacity: var(--o2, 0.5);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: var(--o1, 0.3);
   }
 }
 
