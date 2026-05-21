@@ -8,25 +8,6 @@
   will-change: transform;
 }
 
-/* faint glow halo around the cursor */
-.glow {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(
-    circle,
-    rgba(126, 96, 176, 0.28) 0%,
-    rgba(126, 96, 176, 0.12) 42%,
-    transparent 70%
-  );
-  opacity: 0.7;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
 /* the orb */
 .core {
   position: absolute;
@@ -37,36 +18,57 @@
   border-radius: 50%;
   transform: translate(-50%, -50%);
   background: radial-gradient(circle at 35% 30%, #c9b3e6, #a68bc9 70%);
-  box-shadow: 0 0 8px rgba(184, 164, 212, 0.7);
+  box-shadow: 0 0 4px rgba(184, 164, 212, 0.45);
   transition: transform 0.18s ease-out, background 0.18s ease-out;
 }
-
 .isHover .core {
   transform: translate(-50%, -50%) scale(1.55);
   background: radial-gradient(circle at 35% 30%, #b8a4d4, #7e60b0 70%);
 }
-.isHover .glow {
-  opacity: 0.95;
-  transform: translate(-50%, -50%) scale(1.15);
-}
 
-/* recolor disc: changes the hue of whatever text falls inside its radius to purple */
+/* recolor disc: shifts the hue of text under the cursor to vivid purple */
 .recolor {
   position: fixed;
   left: 0;
   top: 0;
-  width: 46px;
-  height: 46px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9998;
+  z-index: 9997;
   will-change: transform;
   mix-blend-mode: color;
   background: radial-gradient(
     circle,
-    #7c3aed 0%,
-    #7c3aed 44%,
-    rgba(124, 58, 237, 0.5) 62%,
-    transparent 76%
+    #7b2ff7 0%,
+    #7b2ff7 56%,
+    rgba(123, 47, 247, 0.6) 70%,
+    transparent 82%
   );
+}
+
+/* neon disc: lifts the brightness of that text so it reads as glowing neon */
+.neon {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  will-change: transform;
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    circle,
+    rgba(167, 110, 255, 0.85) 0%,
+    rgba(150, 90, 245, 0.4) 45%,
+    transparent 72%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .core {
+    transition: none;
+  }
 }

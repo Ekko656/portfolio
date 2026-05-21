@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './Cursor.module.css';
 
 const HOVER_SELECTOR = 'a, button, .pill, [data-hover]';
-const RECOLOR_HALF = 23; // half of .recolor size
+const RECOLOR_HALF = 29; // half of .recolor
+const NEON_HALF = 26; // half of .neon
 
 export default function Cursor() {
   const rootRef = useRef(null);
   const recolorRef = useRef(null);
+  const neonRef = useRef(null);
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -17,27 +19,24 @@ export default function Cursor() {
     document.documentElement.classList.add('cursor-active');
 
     const move = (e) => {
-      const root = rootRef.current;
-      const recolor = recolorRef.current;
-      if (root) {
-        root.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+      const { clientX: x, clientY: y } = e;
+      if (rootRef.current) {
+        rootRef.current.style.transform = `translate(${x}px, ${y}px)`;
         const overHover = e.target.closest && e.target.closest(HOVER_SELECTOR);
-        root.classList.toggle(styles.isHover, !!overHover);
+        rootRef.current.classList.toggle(styles.isHover, !!overHover);
       }
-      if (recolor) {
-        recolor.style.transform = `translate(${e.clientX - RECOLOR_HALF}px, ${
-          e.clientY - RECOLOR_HALF
-        }px)`;
-      }
+      if (recolorRef.current)
+        recolorRef.current.style.transform = `translate(${x - RECOLOR_HALF}px, ${y - RECOLOR_HALF}px)`;
+      if (neonRef.current)
+        neonRef.current.style.transform = `translate(${x - NEON_HALF}px, ${y - NEON_HALF}px)`;
     };
-    const hide = () => {
-      if (rootRef.current) rootRef.current.style.opacity = '0';
-      if (recolorRef.current) recolorRef.current.style.opacity = '0';
+    const setVis = (v) => {
+      [rootRef, recolorRef, neonRef].forEach((r) => {
+        if (r.current) r.current.style.opacity = v;
+      });
     };
-    const show = () => {
-      if (rootRef.current) rootRef.current.style.opacity = '1';
-      if (recolorRef.current) recolorRef.current.style.opacity = '1';
-    };
+    const hide = () => setVis('0');
+    const show = () => setVis('1');
 
     window.addEventListener('mousemove', move, { passive: true });
     document.addEventListener('mouseleave', hide);
@@ -56,8 +55,8 @@ export default function Cursor() {
   return (
     <>
       <div ref={recolorRef} className={styles.recolor} aria-hidden="true" />
+      <div ref={neonRef} className={styles.neon} aria-hidden="true" />
       <div ref={rootRef} className={styles.cursor} aria-hidden="true">
-        <span className={styles.glow} />
         <span className={styles.core} />
       </div>
     </>

@@ -112,12 +112,16 @@
   box-shadow: 0 8px 20px var(--accent-glow);
 }
 
+.navLabel {
+  position: relative;
+  display: inline-block;
+}
 .navUnderline {
   position: absolute;
-  left: 15px;
-  right: 15px;
-  bottom: 5px;
-  height: 7px;
+  left: -4px;
+  right: -4px;
+  bottom: -7px;
+  height: 9px;
   overflow: visible;
   pointer-events: none;
 }
@@ -126,12 +130,45 @@
   stroke: var(--violet);
   stroke-width: 2.4;
   stroke-linecap: round;
-  stroke-dasharray: 120;
-  stroke-dashoffset: 120;
+}
+
+/* draw-on-hover variants (each button differs) */
+.uWave path,
+.uZig path,
+.uDouble path {
+  stroke-dasharray: 160;
+  stroke-dashoffset: 160;
+}
+.uWave path {
   transition: stroke-dashoffset 0.5s var(--ease-reveal);
 }
-.navBtn:hover .navUnderline path {
+.uZig path {
+  stroke: var(--accent-deep);
+  transition: stroke-dashoffset 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.uDouble path {
+  stroke: var(--plum);
+  stroke-width: 2;
+  transition: stroke-dashoffset 0.5s var(--ease-reveal);
+}
+.uDouble path:nth-child(2) {
+  transition-delay: 0.09s;
+}
+.navBtn:hover .uWave path,
+.navBtn:hover .uZig path,
+.navBtn:hover .uDouble path {
   stroke-dashoffset: 0;
+}
+
+/* grow-from-center variant */
+.uGrow path {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleX(0);
+  transition: transform 0.45s var(--ease-bounce);
+}
+.navBtn:hover .uGrow path {
+  transform: scaleX(1);
 }
 
 .chevron {
