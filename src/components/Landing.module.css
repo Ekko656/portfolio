@@ -1,0 +1,111 @@
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.photo {
+  width: clamp(132px, 18vw, 176px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 28px;
+  border: 4px solid var(--surface);
+  background: linear-gradient(150deg, #d9c2ef, #c9b3e6);
+  box-shadow: 0 14px 40px rgba(126, 96, 176, 0.32),
+    0 0 0 1px rgba(184, 164, 212, 0.5);
+  animation: photo-in 0.7s var(--ease-bounce) both;
+}
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@keyframes photo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.greeting {
+  font-family: var(--font-hand);
+  font-size: clamp(64px, 12vw, 104px);
+  line-height: 1.2;
+  color: var(--text);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.3em;
+}
+
+.word {
+  display: inline-block;
+  transform: translateY(0) rotate(0deg) scale(1);
+  transition: transform 0.4s ease, text-shadow 0.4s ease, color 0.4s ease;
+}
+.word:nth-child(3) {
+  color: var(--violet);
+}
+.word:hover {
+  transform: translateY(-6px) rotate(var(--tilt)) scale(1.06);
+  text-shadow: 0 0 24px rgba(184, 164, 212, 0.6);
+  transition: transform 0.28s var(--ease-bounce), text-shadow 0.28s var(--ease-bounce);
+}
+
+.bio {
+  margin-top: 22px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--text-soft);
+  max-width: 460px;
+}
+
+.pills {
+  margin-top: 44px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.chevron {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: var(--accent-deep);
+  animation: bob 1.6s ease-in-out infinite;
+}
+@keyframes bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    animation: none;
+  }
+}

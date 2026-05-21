@@ -1,0 +1,195 @@
+.about {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px clamp(24px, 5vw, 64px) 100px;
+}
+
+.moment {
+  position: relative;
+  width: 100%;
+  min-height: 50vh;
+  padding: 40px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+}
+
+.center .inner {
+  margin: 0 auto;
+  text-align: center;
+  align-items: center;
+}
+.left .inner {
+  margin-left: 4%;
+  margin-right: auto;
+  text-align: left;
+  align-items: flex-start;
+}
+.right .inner {
+  margin-right: 4%;
+  margin-left: auto;
+  text-align: right;
+  align-items: flex-end;
+}
+
+.line {
+  display: block;
+  margin-bottom: 0.18em;
+  opacity: 0;
+  transform: translateY(30px);
+  will-change: transform, opacity;
+}
+.lineIn {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.7s var(--ease-reveal), transform 0.7s var(--ease-reveal);
+}
+
+/* hand-drawn underline that draws itself on reveal */
+.deco {
+  display: block;
+  margin: 0.1em 0 0.2em;
+  width: clamp(150px, 24vw, 260px);
+  height: auto;
+  opacity: 0;
+  transform: translateY(10px);
+}
+.decoIn {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.4s ease 0.25s;
+}
+.deco path {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+}
+.decoIn path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.9s var(--ease-reveal) 0.3s;
+}
+
+/* connector between moments */
+.connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+.connLine {
+  width: 0;
+  height: 56px;
+  border-left: 2px dashed var(--accent);
+  transform: scaleY(0);
+  transform-origin: top;
+  opacity: 0.7;
+}
+.connIn .connLine {
+  transform: scaleY(1);
+  transition: transform 0.6s var(--ease-reveal);
+}
+.connDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent-deep);
+  box-shadow: 0 0 0 4px rgba(184, 164, 212, 0.22);
+  transform: scale(0);
+}
+.connIn .connDot {
+  transform: scale(1);
+  transition: transform 0.5s var(--ease-bounce) 0.25s;
+}
+
+/* small, set-apart interests aside */
+.aside {
+  max-width: 540px;
+  margin: 72px auto 0;
+  padding: 30px 28px;
+  background: rgba(232, 222, 245, 0.55);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(24px);
+}
+.asideIn {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s var(--ease-reveal), transform 0.6s var(--ease-reveal);
+}
+.asideLabel {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--accent-deep);
+}
+.asideTitle {
+  font-family: var(--font-hand);
+  font-size: 36px;
+  line-height: 1.2;
+  color: var(--violet);
+  margin: 2px 0 18px;
+}
+.asideChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.asideChip {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 8px 16px;
+}
+
+.cta {
+  display: flex;
+  justify-content: center;
+  padding: 28px 0 40px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aside {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line {
+    opacity: 1;
+    transform: none;
+  }
+  .deco {
+    opacity: 1;
+    transform: none;
+  }
+  .deco path {
+    stroke-dashoffset: 0;
+  }
+  .connLine {
+    transform: scaleY(1);
+  }
+  .connDot {
+    transform: scale(1);
+  }
+}

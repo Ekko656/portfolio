@@ -1,0 +1,33 @@
+.resume {
+  min-height: calc(100vh - 84px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px clamp(24px, 6vw, 80px);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  border-radius: 26px;
+  padding: clamp(36px, 6vw, 64px);
+  text-align: center;
+  max-width: 540px;
+  width: 100%;
+  box-shadow: 0 24px 60px var(--accent-glow);
+}
+
+.title {
+  font-family: var(--font-hand);
+  font-size: clamp(48px, 7vw, 68px);
+  line-height: 1.25;
+  color: var(--plum);
+}
+
+.line {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--text-soft);
+  margin: 10px 0 30px;
+}

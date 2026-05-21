@@ -1,0 +1,184 @@
+/* ───────────────────────────── tokens ───────────────────────────── */
+:root {
+  /* lavender is now the primary surface; white is secondary */
+  --bg: #efe6f7;
+  --bg-2: #e7daf3;
+  --bg-3: #f4ecfa;
+  --bg-alt: #e3d4f1;
+  --surface: #ffffff;
+  --surface-tint: #faf6fe;
+
+  --text: #2a2730;
+  --text-soft: #6b6577;
+
+  --accent: #b8a4d4;
+  --accent-deep: #a68bc9;
+  --violet: #7e60b0; /* emphasis: the chosen path */
+  --plum: #5a4684; /* strong emphasis: thesis */
+  --blush: #c98bb6; /* warm secondary accent */
+  --accent-soft: #e8def5;
+  --accent-glow: rgba(184, 164, 212, 0.3);
+  --card-border: #e2d5f0;
+
+  --font-hand: "Indie Flower", cursive;
+  --font-body: "Nunito", system-ui, sans-serif;
+  --font-accent: "Caveat", cursive;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --ease-reveal: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ───────────────────────────── reset ───────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html.cursor-active,
+html.cursor-active * {
+  cursor: none !important;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  background: linear-gradient(170deg, #f3ecfa 0%, #ece0f6 45%, #efe6f7 100%);
+  background-attachment: fixed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  color: inherit;
+}
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ───────────────────────────── hand font: roomy line-height ─────────────────────────────
+   Indie Flower has tall ascenders/descenders; tight leading makes lines collide. */
+.hand {
+  font-family: var(--font-hand);
+  line-height: 1.32;
+}
+
+/* ───────────────────────────── inline emphasis ───────────────────────────── */
+.caveat {
+  font-family: var(--font-accent);
+  font-weight: 600;
+  font-size: 1.32em;
+  color: var(--accent-deep);
+}
+.highlight {
+  background: var(--accent-soft);
+  padding: 2px 8px;
+  border-radius: 7px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.bold {
+  font-weight: 700;
+}
+.em-violet {
+  color: var(--violet);
+  font-weight: 700;
+}
+.em-plum {
+  color: var(--plum);
+  font-weight: 700;
+}
+.em-blush {
+  color: var(--blush);
+  font-weight: 700;
+}
+.muted {
+  color: var(--text-soft);
+}
+
+/* ───────────────────────────── pill ───────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: lowercase;
+  padding: 10px 22px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  transition: background 0.2s ease-out, transform 0.2s ease-out,
+    box-shadow 0.2s ease-out, color 0.2s ease-out;
+}
+.pill:hover {
+  background: var(--accent);
+  color: #fff;
+  transform: scale(1.04);
+  box-shadow: 0 8px 22px var(--accent-glow);
+}
+
+/* ───────────────────────────── reveal ───────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  will-change: transform, opacity;
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s var(--ease-reveal), transform 0.6s var(--ease-reveal);
+}
+
+/* ───────────────────────────── page wrapper ───────────────────────────── */
+.page {
+  min-height: 100vh;
+  padding-top: 84px;
+  animation: page-fade 0.5s var(--ease-reveal) both;
+}
+@keyframes page-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .page {
+    animation: none;
+  }
+}

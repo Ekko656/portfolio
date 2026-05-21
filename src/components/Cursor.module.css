@@ -1,0 +1,49 @@
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  transform: translate(-100px, -100px);
+  will-change: transform;
+}
+
+.scale {
+  transition: transform 0.18s ease-out;
+}
+
+.spin {
+  width: 14px;
+  height: 14px;
+  animation: cursor-spin 8s linear infinite;
+}
+
+.spin svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.path {
+  fill: var(--accent);
+  transition: fill 0.18s ease-out;
+}
+
+.isHover .scale {
+  transform: scale(1.4);
+}
+.isHover .path {
+  fill: var(--accent-deep);
+}
+
+@keyframes cursor-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}
