@@ -25,7 +25,7 @@ export default function Projects() {
               onClick={() => setActive(project)}
               aria-label={`Open ${project.name} details`}
             >
-              {project.image && (
+              {project.image ? (
                 <img
                   className={styles.thumb}
                   src={project.image}
@@ -36,7 +36,17 @@ export default function Projects() {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
-              )}
+              ) : project.videoFile ? (
+                <video
+                  className={styles.thumb}
+                  src={project.videoFile}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                />
+              ) : null}
               <span className={styles.cardOverlay} />
               <span className={styles.cardText}>
                 <span className={styles.name}>{project.name}</span>

@@ -1,5 +1,14 @@
 export const projects = [
   {
+    name: 'Arm Sim',
+    tag: 'Simulation',
+    videoFile: '/projects/arm-sim.webm',
+    description:
+      'A 7-DOF humanoid arm simulated in MuJoCo, with the forward kinematics, Jacobian, and damped least-squares IK written from scratch in NumPy. Cross-verified against MuJoCo to within 1e-6 m across 50+ random poses.',
+    stack: ['Python', 'NumPy', 'MuJoCo', 'MJCF'],
+    links: [{ label: 'GitHub', href: 'https://github.com/Ekko656/arm-sim' }],
+  },
+  {
     name: 'HoneyKey',
     tag: 'Security',
     image: '/projects/honeykey.png',
