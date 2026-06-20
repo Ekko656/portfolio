@@ -47,6 +47,16 @@ export const projects = [
     ],
   },
   {
+    name: 'Sonar Claw',
+    tag: 'Hardware',
+    image: '/projects/claw.jpg',
+    videoFile: '/projects/claw.mp4',
+    description:
+      'A small Arduino-powered metal claw that uses a sonar sensor to detect nearby objects, clamps onto them for a few seconds, then releases. A class project built with a hand-modeled CAD design and a custom control loop on the Arduino.',
+    stack: ['Arduino', 'C++', 'Sonar (HC-SR04)', 'Fusion 360'],
+    links: [],
+  },
+  {
     name: 'VEX Robotics',
     tag: 'Robotics',
     image: '/projects/vex.png',
