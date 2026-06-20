@@ -1,16 +1,5 @@
 export const projects = [
   {
-    name: 'Sonar Claw',
-    tag: 'Hardware',
-    image: '/projects/claw.jpg',
-    objectPosition: 'center 38%',
-    videoFile: '/projects/claw.mp4',
-    description:
-      'A small Arduino-powered metal claw that uses a sonar sensor to detect nearby objects, clamps onto them for a few seconds, then releases. A class project built with a hand-modeled CAD design and a custom control loop on the Arduino.',
-    stack: ['Arduino', 'C++', 'Sonar (HC-SR04)', 'Fusion 360'],
-    links: [],
-  },
-  {
     name: 'Arm Sim',
     tag: 'Simulation',
     videoFile: '/projects/arm-sim.webm',
@@ -18,6 +7,18 @@ export const projects = [
       'A 7-DOF humanoid arm simulated in MuJoCo, with the forward kinematics, Jacobian, and damped least-squares IK written from scratch in NumPy. Cross-verified against MuJoCo to within 1e-6 m across 50+ random poses.',
     stack: ['Python', 'NumPy', 'MuJoCo', 'MJCF'],
     links: [{ label: 'GitHub', href: 'https://github.com/Ekko656/arm-sim' }],
+  },
+  {
+    name: 'Barrage',
+    tag: 'Backend',
+    image: '/projects/barrage.png',
+    description:
+      'A concurrent API load tester that fires thousands of simultaneous requests and visualizes response times in a live dashboard. Useful for finding the exact point an API starts to break.',
+    stack: ['Java', 'Spring Boot', 'JUnit 5', 'jQuery'],
+    links: [
+      { label: 'GitHub', href: 'https://github.com/Ekko656/barrage' },
+      { label: 'Live Demo', href: 'https://barrage-0ajs.onrender.com/' },
+    ],
   },
   {
     name: 'HoneyKey',
@@ -30,18 +31,6 @@ export const projects = [
     links: [
       { label: 'GitHub', href: 'https://github.com/Ekko656/HoneyKey' },
       { label: 'Devpost', href: 'https://devpost.com/software/honeykey' },
-    ],
-  },
-  {
-    name: 'Barrage',
-    tag: 'Backend',
-    image: '/projects/barrage.png',
-    description:
-      'A concurrent API load tester that fires thousands of simultaneous requests and visualizes response times in a live dashboard. Useful for finding the exact point an API starts to break.',
-    stack: ['Java', 'Spring Boot', 'JUnit 5', 'jQuery'],
-    links: [
-      { label: 'GitHub', href: 'https://github.com/Ekko656/barrage' },
-      { label: 'Live Demo', href: 'https://barrage-0ajs.onrender.com/' },
     ],
   },
   {
@@ -84,5 +73,16 @@ export const projects = [
       },
     ],
     links: [{ label: 'GitHub', href: 'https://github.com/dependra123/3300F2023-2024-code' }],
+  },
+  {
+    name: 'Sonar Claw',
+    tag: 'Hardware',
+    image: '/projects/claw.jpg',
+    objectFit: 'contain',
+    videoFile: '/projects/claw.mp4',
+    description:
+      'A small Arduino-powered metal claw that uses a sonar sensor to detect nearby objects, clamps onto them for a few seconds, then releases. A class project built with a hand-modeled CAD design and a custom control loop on the Arduino.',
+    stack: ['Arduino', 'C++', 'Sonar (HC-SR04)', 'Fusion 360'],
+    links: [],
   },
 ];
