@@ -39,10 +39,8 @@ export default function Projects() {
               ) : project.videoFile ? (
                 <video
                   className={styles.thumb}
-                  src={project.videoFile}
-                  autoPlay
+                  src={`${project.videoFile}#t=2`}
                   muted
-                  loop
                   playsInline
                   preload="metadata"
                 />
