@@ -87,4 +87,14 @@ export const projects = [
     stack: ['Arduino', 'C++', 'Ultrasonic (HC-SR04)', 'Fusion 360'],
     links: [],
   },
+  {
+    name: 'Arduino RC Car',
+    tag: 'Hardware',
+    image: '/projects/rc-car.jpg',
+    objectPosition: 'center 38%',
+    description:
+      'An Arduino-driven RC car with a Bluetooth module paired to a phone controller app and dual servos for drive. Won first place in a high school battlebot competition and set the school record for item collection during the event.',
+    stack: ['Arduino', 'C++', 'Bluetooth HC-05', 'Servos'],
+    links: [],
+  },
 ];
