@@ -24,6 +24,7 @@ export default function Projects() {
               className={styles.card}
               onClick={() => setActive(project)}
               aria-label={`Open ${project.name} details`}
+              style={project.cardBackground ? { background: project.cardBackground } : undefined}
             >
               {project.image ? (
                 <img
