@@ -75,12 +75,12 @@ export const projects = [
     links: [{ label: 'GitHub', href: 'https://github.com/dependra123/3300F2023-2024-code' }],
   },
   {
-    name: 'Sonar Claw',
+    name: 'Ultrasonic Claw',
     tag: 'Hardware',
     image: '/projects/claw.jpg',
     objectFit: 'contain',
     cardBackground: '#ffffff',
-    imageTransform: 'translateY(-22px)',
+    imageTransform: 'translateY(-12px)',
     videoFile: '/projects/claw.mp4',
     description:
       'A small Arduino-powered metal claw that uses an ultrasonic sensor to detect nearby objects, clamps onto them for a few seconds, then releases. A class project built with a hand-modeled CAD design and a custom control loop on the Arduino.',
