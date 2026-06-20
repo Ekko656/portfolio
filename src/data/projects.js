@@ -79,7 +79,7 @@ export const projects = [
     tag: 'Hardware',
     image: '/projects/claw.jpg',
     objectFit: 'contain',
-    objectPosition: 'center 22%',
+    objectPosition: 'center 12%',
     cardBackground: '#ffffff',
     videoFile: '/projects/claw.mp4',
     description:
