@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './ProjectModal.module.css';
 import { Icon, iconForLink } from './Icons.jsx';
 
@@ -27,7 +28,7 @@ export default function ProjectModal({ project, onClose }) {
 
   if (!project) return null;
 
-  return (
+  return createPortal(
     <div
       className={`${styles.backdrop} ${visible ? styles.visible : ''}`}
       onClick={handleClose}
@@ -120,6 +121,7 @@ export default function ProjectModal({ project, onClose }) {
           ))}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
