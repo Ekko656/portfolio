@@ -1,185 +1,144 @@
-/* ───────────────────────────── tokens ───────────────────────────── */
+@import '@fontsource/space-grotesk/400.css';
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  /* lavender is now the primary surface; white is secondary */
-  --bg: #efe6f7;
-  --bg-2: #e7daf3;
-  --bg-3: #f4ecfa;
-  --bg-alt: #e3d4f1;
-  --surface: #ffffff;
-  --surface-tint: #faf6fe;
-
-  --text: #2a2730;
-  --text-soft: #6b6577;
-
-  --accent: #b8a4d4;
-  --accent-deep: #a68bc9;
-  --violet: #7e60b0; /* emphasis: the chosen path */
-  --plum: #5a4684; /* strong emphasis: thesis */
-  --blush: #c98bb6; /* warm secondary accent */
-  --accent-soft: #e8def5;
-  --accent-glow: rgba(184, 164, 212, 0.3);
-  --card-border: #e2d5f0;
-
-  --font-hand: "Indie Flower", cursive;
-  --font-body: "Nunito", system-ui, sans-serif;
-  --font-accent: "Caveat", cursive;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-
-  --ease-reveal: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --deep: #0a0810;
+  --base: #0e0b14;
+  --surface: #16121d;
+  --accent: #f2a65a;
+  --accent-deep: #c97b3c;
+  --violet: #9a7fd6;
+  --ink: #ece7e0;
+  --muted: #938b96;
+  --hair: rgba(236, 231, 224, 0.08);
 }
 
-/* ───────────────────────────── reset ───────────────────────────── */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-html.cursor-active,
-html.cursor-active * {
-  cursor: none !important;
-}
-
-body {
-  font-family: var(--font-body);
-  font-weight: 400;
-  color: var(--text);
-  line-height: 1.6;
-  overflow-x: hidden;
-  background: linear-gradient(170deg, #f3ecfa 0%, #ece0f6 45%, #efe6f7 100%);
-  background-attachment: fixed;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-button {
-  font-family: inherit;
-  border: none;
-  background: none;
-  color: inherit;
-}
-::selection {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* ───────────────────────────── hand font: roomy line-height ─────────────────────────────
-   Indie Flower has tall ascenders/descenders; tight leading makes lines collide. */
-.hand {
-  font-family: var(--font-hand);
-  line-height: 1.32;
-}
-
-/* ───────────────────────────── inline emphasis ───────────────────────────── */
-.caveat {
-  font-family: var(--font-accent);
-  font-weight: 600;
-  font-size: 1.32em;
-  color: var(--accent-deep);
-}
-.highlight {
-  background: var(--accent-soft);
-  padding: 2px 8px;
-  border-radius: 7px;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-.bold {
-  font-weight: 700;
-}
-.em-violet {
-  color: var(--violet);
-  font-weight: 700;
-}
-.em-plum {
-  color: var(--plum);
-  font-weight: 700;
-}
-.em-blush {
-  color: var(--blush);
-  font-weight: 700;
-}
-.muted {
-  color: var(--text-soft);
-}
-
-/* ───────────────────────────── pill ───────────────────────────── */
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 14px;
-  text-transform: lowercase;
-  padding: 10px 22px;
-  border: 1px solid var(--accent);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--text);
-  transition: background 0.2s ease-out, transform 0.2s ease-out,
-    box-shadow 0.2s ease-out, color 0.2s ease-out;
-}
-.pill:hover {
-  background: var(--accent);
-  color: #fff;
-  transform: scale(1.04);
-  box-shadow: 0 8px 22px var(--accent-glow);
-}
-
-/* ───────────────────────────── reveal ───────────────────────────── */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  will-change: transform, opacity;
-}
-.reveal.is-in {
-  opacity: 1;
-  transform: none;
-  transition: opacity 0.6s var(--ease-reveal), transform 0.6s var(--ease-reveal);
-}
-
-/* ───────────────────────────── page wrapper ───────────────────────────── */
-.page {
-  position: relative;
-  min-height: 100vh;
-  padding-top: 84px;
-  animation: page-fade 0.5s var(--ease-reveal) both;
-}
-@keyframes page-fade {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+@layer base {
+  html {
+    scroll-behavior: smooth;
   }
-  to {
-    opacity: 1;
-    transform: none;
+
+  body {
+    @apply text-ink font-display antialiased;
+    overflow-x: hidden;
+    /* Layered depth: two warm light wells + a vertical descent. Fixed so it
+       reads as an environment the content moves through, not a flat fill. */
+    background-color: var(--base);
+    background-image:
+      radial-gradient(
+        1100px 760px at 78% -8%,
+        rgba(242, 166, 90, 0.12),
+        transparent 60%
+      ),
+      radial-gradient(
+        900px 700px at 2% 28%,
+        rgba(154, 127, 214, 0.09),
+        transparent 55%
+      ),
+      linear-gradient(180deg, #100c17 0%, #0a080e 100%);
+    background-attachment: fixed;
+  }
+
+  /* Film grain — kills the flat, plasticky gradient banding. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Soft edge vignette for focus toward center. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 240px 40px rgba(0, 0, 0, 0.55);
+  }
+
+  ::selection {
+    background: rgba(242, 166, 90, 0.28);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Custom scrollbar to match the warm dark shell. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(242, 166, 90, 0.3) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgba(242, 166, 90, 0.22);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: rgba(242, 166, 90, 0.4);
+    background-clip: padding-box;
+  }
+}
+
+@layer components {
+  /* Panel: raised surface that catches a top light edge. Not a flat box. */
+  .panel {
+    @apply rounded-lg border border-hair bg-surface/50 shadow-panel backdrop-blur-sm;
+  }
+
+  .panel-interactive {
+    @apply panel transition-[transform,box-shadow,border-color] duration-300 ease-out;
+  }
+  .panel-interactive:hover {
+    @apply -translate-y-0.5 border-hair-strong shadow-panel-hover;
+  }
+
+  .hair-rule {
+    @apply border-t border-hair;
+  }
+
+  .label {
+    @apply font-mono text-xs uppercase tracking-[0.2em] text-muted;
+  }
+
+  .shell {
+    @apply relative z-10 mx-auto w-full max-w-shell px-6 md:px-10;
+  }
+
+  /* Amber gradient text for selective emphasis. */
+  .text-sheen {
+    @apply bg-amber-sheen bg-clip-text text-transparent;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *,
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
-  }
-  .reveal {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  .page {
-    animation: none;
   }
 }
