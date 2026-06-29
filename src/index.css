@@ -1,8 +1,8 @@
-@import '@fontsource/space-grotesk/400.css';
 @import '@fontsource/space-grotesk/500.css';
 @import '@fontsource/space-grotesk/700.css';
-@import '@fontsource/jetbrains-mono/400.css';
-@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/saira/400.css';
+@import '@fontsource/saira/500.css';
+@import '@fontsource/saira/600.css';
 
 @tailwind base;
 @tailwind components;
@@ -40,9 +40,14 @@ html.lenis body {
     scroll-behavior: smooth;
   }
 
+  html {
+    /* clip (not hidden) prevents horizontal scroll without creating a scroll
+       container — hidden here decouples Lenis from native scroll. */
+    overflow-x: clip;
+  }
+
   body {
-    @apply text-ink font-display antialiased;
-    overflow-x: hidden;
+    @apply text-ink font-sans antialiased;
     /* Dark navy-slate base with cool light wells and a vertical descent. */
     background-color: var(--base);
     background-image:
@@ -136,7 +141,17 @@ html.lenis body {
   }
 
   .label {
-    @apply font-mono text-xs uppercase tracking-[0.2em] text-muted;
+    @apply text-xs font-medium uppercase tracking-[0.28em] text-muted;
+  }
+
+  /* Eyebrow with a small accent node — replaces the "// meta" slash motif. */
+  .eyebrow {
+    @apply flex items-center gap-2.5 text-xs font-medium uppercase tracking-[0.28em] text-accent;
+  }
+  .eyebrow::before {
+    content: '';
+    @apply inline-block h-1.5 w-1.5 rounded-full bg-accent;
+    box-shadow: 0 0 12px 1px rgba(126, 159, 218, 0.8);
   }
 
   .shell {

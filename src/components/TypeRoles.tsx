@@ -39,9 +39,9 @@ export default function TypeRoles() {
   }, [])
 
   return (
-    <span className="font-mono text-accent">
+    <span className="font-medium text-ink">
       {text}
-      <span className="ml-0.5 inline-block h-[1em] w-[0.55ch] translate-y-[0.12em] animate-blink bg-accent align-middle" />
+      <span className="ml-1 inline-block h-[1.05em] w-[2px] translate-y-[0.16em] animate-blink bg-accent align-baseline" />
     </span>
   )
 }

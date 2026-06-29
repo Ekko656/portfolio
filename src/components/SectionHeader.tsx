@@ -1,20 +1,16 @@
 type Props = {
-  index: string
+  eyebrow: string
   title: string
-  meta?: string
 }
 
-/** Thin technical section rule with monospace coordinates / index. */
-export default function SectionHeader({ index, title, meta }: Props) {
+/** Section heading: an accent-node eyebrow over a large title — no slash motifs. */
+export default function SectionHeader({ eyebrow, title }: Props) {
   return (
     <div className="mb-12">
-      <div className="flex items-center gap-4">
-        <span className="font-mono text-xs text-accent">{index}</span>
-        <span className="h-px flex-1 bg-hair" />
-        {meta && <span className="label">{meta}</span>}
-      </div>
-      <h2 className="mt-6 font-display text-3xl font-bold tracking-tightest text-ink md:text-5xl">
+      <span className="eyebrow">{eyebrow}</span>
+      <h2 className="mt-5 inline-block font-display text-3xl font-bold tracking-tightest text-ink md:text-5xl">
         {title}
+        <span className="mt-3 block h-px w-full origin-left bg-gradient-to-r from-accent to-transparent" />
       </h2>
     </div>
   )

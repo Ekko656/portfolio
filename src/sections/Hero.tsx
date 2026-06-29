@@ -3,6 +3,7 @@ import { useGSAP } from '@gsap/react'
 import { gsap, prefersReducedMotion } from '../lib/motion'
 import SignalField from '../components/SignalField'
 import TypeRoles from '../components/TypeRoles'
+import Magnetic from '../components/Magnetic'
 
 // Keep Three.js out of the initial bundle — the arm streams in after paint.
 const ArmScene = lazy(() => import('../components/arm/ArmScene'))
@@ -38,9 +39,15 @@ export default function Hero() {
       <div className="shell grid w-full items-center gap-10 md:grid-cols-2">
         {/* Left: headline */}
         <div className="relative z-10">
-          <div data-hero-chip className="label mb-6 flex items-center gap-2">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent shadow-glow" />
-            // status: building
+          <div
+            data-hero-chip
+            className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-hair bg-surface/40 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted backdrop-blur-sm"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+            </span>
+            Available for Summer 2026
           </div>
 
           <h1 className="font-display text-5xl font-bold leading-[0.95] tracking-tightest text-ink sm:text-6xl md:text-7xl">
@@ -56,35 +63,37 @@ export default function Hero() {
             </span>
           </h1>
 
-          <p
-            data-hero-fade
-            className="mt-5 font-mono text-sm text-muted"
-          >
-            <span className="text-ink/70">{'> '}</span>
-            <TypeRoles />
+          <p data-hero-fade className="mt-6 text-lg text-muted">
+            Focused on <TypeRoles />
           </p>
 
           <p
             data-hero-fade
-            className="mt-5 max-w-md font-mono text-sm leading-relaxed text-muted"
+            className="mt-5 max-w-md text-base leading-relaxed text-muted"
           >
-            Biomedical Engineering (Robotics) @ UBC. Building toward humanoid
+            Biomedical Engineering (Robotics) at UBC, building toward humanoid
             robotics — embedded systems, control, and machine learning.
           </p>
 
           <div data-hero-fade className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href="#projects"
-              className="rounded-md bg-ink px-5 py-2.5 font-mono text-xs uppercase tracking-[0.18em] text-base transition-opacity hover:opacity-90"
-            >
-              view work
-            </a>
-            <a
-              href="#contact"
-              className="rounded-md border border-hair px-5 py-2.5 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors hover:border-accent/50 hover:text-accent"
-            >
-              get in touch
-            </a>
+            <Magnetic>
+              <a
+                href="#projects"
+                data-interactive
+                className="block rounded-md bg-ink px-5 py-2.5 font-sans text-xs uppercase tracking-[0.18em] text-base transition-opacity hover:opacity-90"
+              >
+                view work
+              </a>
+            </Magnetic>
+            <Magnetic>
+              <a
+                href="#contact"
+                data-interactive
+                className="block rounded-md border border-hair px-5 py-2.5 font-sans text-xs uppercase tracking-[0.18em] text-ink transition-colors hover:border-accent/50 hover:text-accent"
+              >
+                get in touch
+              </a>
+            </Magnetic>
           </div>
         </div>
 
@@ -103,7 +112,7 @@ export default function Hero() {
       <a
         href="#about"
         data-hero-fade
-        className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 font-mono text-[0.65rem] uppercase tracking-[0.3em] text-muted transition-colors hover:text-ink md:flex"
+        className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 font-sans text-[0.65rem] uppercase tracking-[0.3em] text-muted transition-colors hover:text-ink md:flex"
       >
         scroll
         <span className="h-8 w-px bg-gradient-to-b from-accent to-transparent" />
