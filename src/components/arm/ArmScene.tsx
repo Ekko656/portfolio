@@ -2,12 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Environment, Lightformer, ContactShadows } from '@react-three/drei'
 import RobotArm from './RobotArm'
+import Stage from './Stage'
 import { prefersReducedMotion, isMobile } from '../../lib/motion'
 
 /**
- * Canvas wrapper for the hero arm. DPR capped at 2; the render loop pauses when
- * the hero scrolls out of view. Mobile / reduced-motion render a single static
- * pose (frameloop "demand" renders once on mount, then idles).
+ * Canvas wrapper for the hero arm + its stage. DPR capped at 2; the render loop
+ * pauses when the hero scrolls out of view. Mobile / reduced-motion render a
+ * single static pose (frameloop "demand" renders once on mount).
+ *
+ * Camera is pulled back with margin so the arm never clips, even mid-gesture.
  */
 export default function ArmScene() {
   const wrap = useRef<HTMLDivElement>(null)
@@ -29,57 +32,47 @@ export default function ArmScene() {
       <Canvas
         className="!pointer-events-none"
         dpr={[1, 2]}
-        shadows
+        shadows="soft"
         frameloop={staticMode ? 'demand' : inView ? 'always' : 'never'}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-        camera={{ position: [1.8, 1.0, 5.3], fov: 40 }}
+        camera={{ position: [2.2, 1.2, 7.6], fov: 31 }}
       >
-        <ambientLight intensity={0.45} />
+        <ambientLight intensity={0.9} />
+        <hemisphereLight args={['#ffffff', '#c9d3e6', 0.7]} />
         <directionalLight
-          position={[4, 6, 3]}
-          intensity={2.2}
+          position={[4, 7, 4]}
+          intensity={2.4}
           castShadow
-          shadow-mapSize={[1024, 1024]}
+          shadow-mapSize={[2048, 2048]}
           shadow-bias={-0.0002}
+          shadow-camera-left={-5}
+          shadow-camera-right={5}
+          shadow-camera-top={5}
+          shadow-camera-bottom={-5}
         />
-        <pointLight position={[-3, 1.5, 2]} intensity={22} color="#f2a65a" distance={14} />
-        <pointLight position={[2, 0.5, 3]} intensity={8} color="#9a7fd6" distance={12} />
+        <directionalLight position={[-5, 3, 2]} intensity={0.6} color="#9fb4dd" />
 
-        {/* Procedural environment (no HDRI fetch) so the metal has something
-            to reflect. */}
+        {/* Bright studio softboxes for clean reflections on the white shells. */}
         <Environment resolution={128}>
-          <Lightformer
-            form="rect"
-            intensity={2}
-            position={[0, 4, -3]}
-            scale={[8, 6, 1]}
-            color="#fff4e6"
-          />
-          <Lightformer
-            form="rect"
-            intensity={1.6}
-            position={[-5, 1, 2]}
-            scale={[3, 4, 1]}
-            color="#f2a65a"
-          />
-          <Lightformer
-            form="rect"
-            intensity={1}
-            position={[5, 0, 3]}
-            scale={[3, 3, 1]}
-            color="#9a7fd6"
-          />
+          <Lightformer form="rect" intensity={3} position={[0, 5, 2]} scale={[10, 6, 1]} color="#ffffff" />
+          <Lightformer form="rect" intensity={1.6} position={[-5, 2, 3]} scale={[4, 5, 1]} color="#dfe7f5" />
+          <Lightformer form="rect" intensity={1.2} position={[5, 1, 2]} scale={[3, 4, 1]} color="#ffffff" />
         </Environment>
 
-        <RobotArm staticMode={staticMode} />
+        {/* Scaled down slightly + lifted so the arm keeps headroom even at the
+            top of a reaching gesture and never clips the canvas. */}
+        <group scale={0.88} position={[0, 0.05, 0]}>
+          <Stage animated={!staticMode} />
+          <RobotArm staticMode={staticMode} />
+        </group>
 
         <ContactShadows
-          position={[0, -1.12, 0]}
-          opacity={0.55}
-          scale={9}
-          blur={2.8}
-          far={4}
-          color="#000000"
+          position={[0, -1.42, 0]}
+          opacity={0.32}
+          scale={11}
+          blur={3}
+          far={4.5}
+          color="#0c1019"
           frames={staticMode ? 1 : undefined}
         />
       </Canvas>

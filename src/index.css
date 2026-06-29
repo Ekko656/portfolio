@@ -9,15 +9,15 @@
 @tailwind utilities;
 
 :root {
-  --deep: #0a0810;
-  --base: #0e0b14;
-  --surface: #16121d;
-  --accent: #f2a65a;
-  --accent-deep: #c97b3c;
-  --violet: #9a7fd6;
-  --ink: #ece7e0;
-  --muted: #938b96;
-  --hair: rgba(236, 231, 224, 0.08);
+  --deep: #1f2731;
+  --base: #2b3340;
+  --surface: #343d4b;
+  --accent: #7e9fda;
+  --accent-deep: #5573b8;
+  --steel: #8aa6dd;
+  --ink: #eef1f7;
+  --muted: #9aa3b4;
+  --hair: rgba(255, 255, 255, 0.09);
 }
 
 /* Lenis smooth-scroll wiring (classes added by the library at runtime). */
@@ -43,48 +43,52 @@ html.lenis body {
   body {
     @apply text-ink font-display antialiased;
     overflow-x: hidden;
-    /* Layered depth: two warm light wells + a vertical descent. Fixed so it
-       reads as an environment the content moves through, not a flat fill. */
+    /* Dark navy-slate base with cool light wells and a vertical descent. */
     background-color: var(--base);
     background-image:
       radial-gradient(
-        1100px 760px at 78% -8%,
-        rgba(242, 166, 90, 0.12),
+        1100px 760px at 82% -8%,
+        rgba(126, 159, 218, 0.2),
         transparent 60%
       ),
       radial-gradient(
-        900px 700px at 2% 28%,
-        rgba(154, 127, 214, 0.09),
+        900px 700px at 0% 24%,
+        rgba(255, 255, 255, 0.05),
         transparent 55%
       ),
-      linear-gradient(180deg, #100c17 0%, #0a080e 100%);
+      linear-gradient(180deg, #323b49 0%, #232a34 100%);
     background-attachment: fixed;
   }
 
-  /* Film grain — kills the flat, plasticky gradient banding. */
+  /* Faint blueprint dot-grid — connective tissue across every section. */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.6;
+    background-image: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 1.6px
+    );
+    background-size: 28px 28px;
   }
 
-  /* Soft edge vignette for focus toward center. */
+  /* Soft edge vignette to settle focus toward the center. */
   body::after {
     content: '';
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    box-shadow: inset 0 0 240px 40px rgba(0, 0, 0, 0.55);
+    box-shadow: inset 0 0 260px 50px rgba(15, 19, 26, 0.5);
   }
 
   ::selection {
-    background: rgba(242, 166, 90, 0.28);
-    color: var(--ink);
+    background: rgba(126, 159, 218, 0.3);
+    color: #ffffff;
   }
 
   :focus-visible {
@@ -93,31 +97,31 @@ html.lenis body {
     border-radius: 4px;
   }
 
-  /* Custom scrollbar to match the warm dark shell. */
+  /* Custom scrollbar to match the slate shell. */
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(242, 166, 90, 0.3) transparent;
+    scrollbar-color: rgba(126, 159, 218, 0.4) transparent;
   }
   *::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
   *::-webkit-scrollbar-thumb {
-    background: rgba(242, 166, 90, 0.22);
+    background: rgba(126, 159, 218, 0.3);
     border-radius: 999px;
     border: 3px solid transparent;
     background-clip: padding-box;
   }
   *::-webkit-scrollbar-thumb:hover {
-    background: rgba(242, 166, 90, 0.4);
+    background: rgba(126, 159, 218, 0.5);
     background-clip: padding-box;
   }
 }
 
 @layer components {
-  /* Panel: raised surface that catches a top light edge. Not a flat box. */
+  /* Panel: a lifted slate surface that catches a faint top light edge. */
   .panel {
-    @apply rounded-lg border border-hair bg-surface/50 shadow-panel backdrop-blur-sm;
+    @apply rounded-lg border border-hair bg-surface/70 shadow-panel backdrop-blur-sm;
   }
 
   .panel-interactive {
@@ -139,9 +143,9 @@ html.lenis body {
     @apply relative z-10 mx-auto w-full max-w-shell px-6 md:px-10;
   }
 
-  /* Amber gradient text for selective emphasis. */
+  /* White → steel gradient text for selective emphasis. */
   .text-sheen {
-    @apply bg-amber-sheen bg-clip-text text-transparent;
+    @apply bg-sheen bg-clip-text text-transparent;
   }
 }
 
