@@ -1,3 +1,8 @@
+import { lazy, Suspense } from 'react'
+
+// Keep Three.js out of the initial bundle — the arm streams in after paint.
+const ArmScene = lazy(() => import('../components/arm/ArmScene'))
+
 export default function Hero() {
   return (
     <section
@@ -39,14 +44,14 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right: arm canvas mounts here (Phase 3) */}
-        <div className="relative hidden h-[440px] md:block">
-          {/* Warm key glow that the arm will sit inside. */}
+        {/* Right: interactive robot arm. Pointer-events none so it never
+            blocks selecting the headline text beside/behind it. */}
+        <div className="pointer-events-none relative hidden h-[520px] md:block">
+          {/* Warm key glow the arm sits inside. */}
           <div className="absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-[90px]" />
-          <div className="panel absolute inset-0 flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_50%_0%,rgba(242,166,90,0.06),transparent_60%)]" />
-            <span className="label">arm // r3f canvas</span>
-          </div>
+          <Suspense fallback={null}>
+            <ArmScene />
+          </Suspense>
         </div>
       </div>
     </section>
