@@ -20,6 +20,21 @@
   --hair: rgba(236, 231, 224, 0.08);
 }
 
+/* Lenis smooth-scroll wiring (classes added by the library at runtime). */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

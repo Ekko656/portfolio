@@ -1,10 +1,13 @@
 import SectionHeader from '../components/SectionHeader'
+import Reveal from '../components/Reveal'
 
 export default function Projects() {
   return (
     <section id="projects" className="shell scroll-mt-20 py-28 md:py-36">
-      <SectionHeader index="02 / 03" title="Projects" meta="// build log" />
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <Reveal>
+        <SectionHeader index="02 / 03" title="Projects" meta="// build log" />
+      </Reveal>
+      <Reveal stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
@@ -16,7 +19,7 @@ export default function Projects() {
             <span className="font-mono text-sm text-muted">project slot</span>
           </div>
         ))}
-      </div>
+      </Reveal>
     </section>
   )
 }
