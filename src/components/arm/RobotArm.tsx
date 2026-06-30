@@ -1,7 +1,6 @@
-import { useMemo, useRef, type RefObject } from 'react'
+import { useRef, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { getMatcaps } from '../../landing/matcaps'
 
 const { clamp, lerp } = THREE.MathUtils
 
@@ -27,18 +26,12 @@ function solveIK(up: number, fwd: number) {
 }
 
 type Props = {
-  /** World-space target the gripper reaches toward (choreographed). */
   target?: RefObject<THREE.Vector3>
-  /** Gripper openness 0 (closed) .. 1 (open). */
   grip?: RefObject<number>
-  /** Empty placed at the gripper tip so choreography can read its world pos. */
   tipRef?: RefObject<THREE.Object3D>
 }
 
-/**
- * Articulated arm driven by an external, choreographed end-effector target via
- * 2-link IK (no cursor control). Matcap-shaded for a premium baked look.
- */
+/** Articulated arm in polished PBR metal, driven by a choreographed IK target. */
 export default function RobotArm({ target, grip, tipRef }: Props) {
   const base = useRef<THREE.Group>(null)
   const shoulder = useRef<THREE.Group>(null)
@@ -47,7 +40,6 @@ export default function RobotArm({ target, grip, tipRef }: Props) {
   const jawL = useRef<THREE.Group>(null)
   const jawR = useRef<THREE.Group>(null)
 
-  const mc = useMemo(() => getMatcaps(), [])
   const baseWorld = useRef(new THREE.Vector3())
   const idle = useRef(new THREE.Vector3(1.3, 1.7, 1.3))
 
@@ -57,7 +49,6 @@ export default function RobotArm({ target, grip, tipRef }: Props) {
     const t = state.clock.elapsedTime
     base.current.getWorldPosition(baseWorld.current)
 
-    // target: choreographed if provided, else a slow graceful drift
     let goal: THREE.Vector3
     if (target?.current) {
       goal = target.current
@@ -81,7 +72,6 @@ export default function RobotArm({ target, grip, tipRef }: Props) {
     const elA = clamp(el, ...LIM.elbow)
     const wrA = clamp(Math.atan2(h, v) - (shA + elA), ...LIM.wrist)
     const open = grip?.current != null ? grip.current : 0.5
-    // parallel jaws slide symmetrically — they stay parallel, never fan out
     const gap = lerp(0.055, 0.17, clamp(open, 0, 1))
 
     const k = 1 - Math.exp(-9 * delta)
@@ -96,40 +86,40 @@ export default function RobotArm({ target, grip, tipRef }: Props) {
   return (
     <group position={[0, -1.3, 0]}>
       <group ref={base}>
-        <mesh castShadow position={[0, 0.16, 0]}>
+        <mesh castShadow receiveShadow position={[0, 0.16, 0]}>
           <cylinderGeometry args={[0.5, 0.66, 0.32, 48]} />
-          <meshMatcapMaterial matcap={mc.shellLight} />
+          <MatLight />
         </mesh>
         <mesh position={[0, 0.33, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <ringGeometry args={[0.34, 0.44, 48]} />
-          <meshBasicMaterial color="#7e9fda" toneMapped={false} side={THREE.DoubleSide} />
+          <MatGlow />
         </mesh>
-        <mesh position={[0, 0.62, 0]}>
+        <mesh castShadow position={[0, 0.62, 0]}>
           <cylinderGeometry args={[0.3, 0.34, 0.62, 32]} />
-          <meshMatcapMaterial matcap={mc.shellDark} />
+          <MatDark />
         </mesh>
 
         <group ref={shoulder} position={[0, SHOULDER_Y, 0]}>
-          <Joint mc={mc.joint} r={0.26} />
-          <mesh position={[0, UPPER / 2, 0]}>
+          <Joint r={0.26} />
+          <mesh castShadow receiveShadow position={[0, UPPER / 2, 0]}>
             <boxGeometry args={[0.3, UPPER, 0.24]} />
-            <meshMatcapMaterial matcap={mc.shellLight} />
+            <MatLight />
           </mesh>
           <mesh position={[0.155, UPPER / 2, 0]}>
-            <boxGeometry args={[0.02, UPPER * 0.7, 0.13]} />
-            <meshMatcapMaterial matcap={mc.accent} />
+            <boxGeometry args={[0.025, UPPER * 0.7, 0.13]} />
+            <MatGlow />
           </mesh>
 
           <group ref={elbow} position={[0, UPPER, 0]}>
-            <Joint mc={mc.joint} r={0.22} />
-            <mesh position={[0, FORE / 2, 0]}>
+            <Joint r={0.22} />
+            <mesh castShadow receiveShadow position={[0, FORE / 2, 0]}>
               <boxGeometry args={[0.24, FORE, 0.2]} />
-              <meshMatcapMaterial matcap={mc.shellLight} />
+              <MatLight />
             </mesh>
 
             <group ref={wrist} position={[0, FORE, 0]}>
-              <Joint mc={mc.joint} r={0.15} />
-              <Gripper mc={mc} jawL={jawL} jawR={jawR} tipRef={tipRef} />
+              <Joint r={0.15} />
+              <Gripper jawL={jawL} jawR={jawR} tipRef={tipRef} />
             </group>
           </group>
         </group>
@@ -139,94 +129,112 @@ export default function RobotArm({ target, grip, tipRef }: Props) {
 }
 
 function Gripper({
-  mc,
   jawL,
   jawR,
   tipRef,
 }: {
-  mc: ReturnType<typeof getMatcaps>
   jawL: RefObject<THREE.Group>
   jawR: RefObject<THREE.Group>
   tipRef?: RefObject<THREE.Object3D>
 }) {
   return (
     <group position={[0, 0.04, 0]}>
-      {/* tool flange */}
-      <mesh position={[0, 0.05, 0]}>
+      <mesh castShadow position={[0, 0.05, 0]}>
         <cylinderGeometry args={[0.17, 0.17, 0.1, 24]} />
-        <meshMatcapMaterial matcap={mc.shellDark} />
+        <MatDark />
       </mesh>
-      {/* actuator body */}
-      <mesh position={[0, 0.18, 0]}>
+      <mesh castShadow position={[0, 0.18, 0]}>
         <boxGeometry args={[0.36, 0.2, 0.26]} />
-        <meshMatcapMaterial matcap={mc.shellLight} />
+        <MatLight />
       </mesh>
-      {/* slide rail the fingers ride on */}
-      <mesh position={[0, 0.3, 0]}>
+      <mesh castShadow position={[0, 0.3, 0]}>
         <boxGeometry args={[0.34, 0.05, 0.16]} />
-        <meshMatcapMaterial matcap={mc.shellDark} />
+        <MatDark />
       </mesh>
 
-      {/* point where the arm "holds" things */}
       <object3D ref={tipRef} position={[0, 0.66, 0]} />
 
-      {/* parallel fingers — slide in x, always parallel, tips curl inward */}
       <group ref={jawL} position={[-0.06, 0.32, 0]}>
-        <Finger mc={mc} />
+        <Finger />
       </group>
       <group ref={jawR} position={[0.06, 0.32, 0]}>
-        <Finger mc={mc} mirror />
+        <Finger mirror />
       </group>
     </group>
   )
 }
 
-/**
- * One parallel-gripper finger: a forward proximal phalange + an inward-curling
- * distal phalange with a grip pad on the inner face (Robotiq 2F style).
- */
-function Finger({
-  mc,
-  mirror = false,
-}: {
-  mc: ReturnType<typeof getMatcaps>
-  mirror?: boolean
-}) {
-  // inner side faces the gripper centreline (+x for the left finger)
+function Finger({ mirror = false }: { mirror?: boolean }) {
   const inner = mirror ? -1 : 1
   return (
     <group>
-      {/* proximal phalange — vertical, parallel to its twin */}
-      <mesh position={[0, 0.17, 0]}>
+      <mesh castShadow position={[0, 0.17, 0]}>
         <boxGeometry args={[0.075, 0.34, 0.17]} />
-        <meshMatcapMaterial matcap={mc.shellLight} />
+        <MatLight />
       </mesh>
-      {/* knuckle */}
-      <mesh position={[0, 0.34, 0]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh castShadow position={[0, 0.34, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.045, 0.045, 0.18, 14]} />
-        <meshMatcapMaterial matcap={mc.joint} />
+        <MatJoint />
       </mesh>
-      {/* distal phalange — curls inward toward the centreline */}
       <group position={[0, 0.34, 0]} rotation={[0, 0, inner * -0.62]}>
-        <mesh position={[0, 0.09, 0]}>
+        <mesh castShadow position={[0, 0.09, 0]}>
           <boxGeometry args={[0.07, 0.2, 0.15]} />
-          <meshMatcapMaterial matcap={mc.shellLight} />
+          <MatLight />
         </mesh>
-        {/* grip pad on the inner face */}
         <mesh position={[inner * 0.038, 0.07, 0]}>
-          <boxGeometry args={[0.018, 0.16, 0.12]} />
-          <meshMatcapMaterial matcap={mc.accent} />
+          <boxGeometry args={[0.02, 0.16, 0.12]} />
+          <MatPad />
         </mesh>
       </group>
     </group>
   )
 }
 
-function Joint({ mc, r }: { mc: THREE.Texture; r: number }) {
+/* ---- PBR materials (rely on the scene Environment for reflections) ---- */
+
+function MatLight() {
   return (
-    <mesh rotation={[0, 0, Math.PI / 2]}>
+    <meshStandardMaterial
+      color="#c4cee0"
+      metalness={1}
+      roughness={0.26}
+      envMapIntensity={1.5}
+    />
+  )
+}
+function MatDark() {
+  return (
+    <meshStandardMaterial
+      color="#3c4658"
+      metalness={1}
+      roughness={0.45}
+      envMapIntensity={1.1}
+    />
+  )
+}
+function MatJoint() {
+  return (
+    <meshStandardMaterial color="#8b97ad" metalness={1} roughness={0.34} envMapIntensity={1.3} />
+  )
+}
+function MatPad() {
+  return <meshStandardMaterial color="#14181f" metalness={0.1} roughness={0.9} />
+}
+function MatGlow() {
+  return (
+    <meshStandardMaterial
+      color="#1c2740"
+      emissive="#5b8bff"
+      emissiveIntensity={2.2}
+      toneMapped={false}
+    />
+  )
+}
+function Joint({ r }: { r: number }) {
+  return (
+    <mesh castShadow rotation={[0, 0, Math.PI / 2]}>
       <cylinderGeometry args={[r, r, 0.34, 28]} />
-      <meshMatcapMaterial matcap={mc} />
+      <MatJoint />
     </mesh>
   )
 }
