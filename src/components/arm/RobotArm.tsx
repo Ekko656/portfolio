@@ -81,15 +81,16 @@ export default function RobotArm({ target, grip, tipRef }: Props) {
     const elA = clamp(el, ...LIM.elbow)
     const wrA = clamp(Math.atan2(h, v) - (shA + elA), ...LIM.wrist)
     const open = grip?.current != null ? grip.current : 0.5
-    const jaw = lerp(0.08, 0.5, clamp(open, 0, 1))
+    // parallel jaws slide symmetrically — they stay parallel, never fan out
+    const gap = lerp(0.055, 0.17, clamp(open, 0, 1))
 
     const k = 1 - Math.exp(-9 * delta)
     base.current.rotation.y = lerp(base.current.rotation.y, yaw, k)
     shoulder.current.rotation.x = lerp(shoulder.current.rotation.x, shA, k)
     elbow.current.rotation.x = lerp(elbow.current.rotation.x, elA, k)
     wrist.current.rotation.x = lerp(wrist.current.rotation.x, wrA, k)
-    if (jawL.current) jawL.current.rotation.z = lerp(jawL.current.rotation.z, jaw, k)
-    if (jawR.current) jawR.current.rotation.z = lerp(jawR.current.rotation.z, -jaw, k)
+    if (jawL.current) jawL.current.position.x = lerp(jawL.current.position.x, -gap, k)
+    if (jawR.current) jawR.current.position.x = lerp(jawR.current.position.x, gap, k)
   })
 
   return (
@@ -150,53 +151,70 @@ function Gripper({
 }) {
   return (
     <group position={[0, 0.04, 0]}>
+      {/* tool flange */}
       <mesh position={[0, 0.05, 0]}>
         <cylinderGeometry args={[0.17, 0.17, 0.1, 24]} />
         <meshMatcapMaterial matcap={mc.shellDark} />
       </mesh>
+      {/* actuator body */}
       <mesh position={[0, 0.18, 0]}>
-        <boxGeometry args={[0.34, 0.2, 0.26]} />
+        <boxGeometry args={[0.36, 0.2, 0.26]} />
         <meshMatcapMaterial matcap={mc.shellLight} />
       </mesh>
-      <mesh position={[0, 0.28, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.05, 0.05, 0.34, 16]} />
-        <meshMatcapMaterial matcap={mc.joint} />
+      {/* slide rail the fingers ride on */}
+      <mesh position={[0, 0.3, 0]}>
+        <boxGeometry args={[0.34, 0.05, 0.16]} />
+        <meshMatcapMaterial matcap={mc.shellDark} />
       </mesh>
 
       {/* point where the arm "holds" things */}
-      <object3D ref={tipRef} position={[0, 0.62, 0]} />
+      <object3D ref={tipRef} position={[0, 0.66, 0]} />
 
-      <group ref={jawL} position={[-0.13, 0.28, 0]}>
-        <Jaw mc={mc} />
+      {/* parallel fingers — slide in x, always parallel, tips curl inward */}
+      <group ref={jawL} position={[-0.06, 0.32, 0]}>
+        <Finger mc={mc} />
       </group>
-      <group ref={jawR} position={[0.13, 0.28, 0]}>
-        <Jaw mc={mc} mirror />
+      <group ref={jawR} position={[0.06, 0.32, 0]}>
+        <Finger mc={mc} mirror />
       </group>
     </group>
   )
 }
 
-function Jaw({
+/**
+ * One parallel-gripper finger: a forward proximal phalange + an inward-curling
+ * distal phalange with a grip pad on the inner face (Robotiq 2F style).
+ */
+function Finger({
   mc,
   mirror = false,
 }: {
   mc: ReturnType<typeof getMatcaps>
   mirror?: boolean
 }) {
-  const s = mirror ? -1 : 1
+  // inner side faces the gripper centreline (+x for the left finger)
+  const inner = mirror ? -1 : 1
   return (
     <group>
-      <mesh position={[s * -0.02, 0.16, 0]}>
-        <boxGeometry args={[0.07, 0.34, 0.18]} />
+      {/* proximal phalange — vertical, parallel to its twin */}
+      <mesh position={[0, 0.17, 0]}>
+        <boxGeometry args={[0.075, 0.34, 0.17]} />
         <meshMatcapMaterial matcap={mc.shellLight} />
       </mesh>
-      <group position={[s * -0.03, 0.33, 0]} rotation={[0, 0, s * 0.7]}>
-        <mesh position={[0, 0.08, 0]}>
-          <boxGeometry args={[0.06, 0.2, 0.16]} />
-          <meshMatcapMaterial matcap={mc.shellDark} />
+      {/* knuckle */}
+      <mesh position={[0, 0.34, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.045, 0.045, 0.18, 14]} />
+        <meshMatcapMaterial matcap={mc.joint} />
+      </mesh>
+      {/* distal phalange — curls inward toward the centreline */}
+      <group position={[0, 0.34, 0]} rotation={[0, 0, inner * -0.62]}>
+        <mesh position={[0, 0.09, 0]}>
+          <boxGeometry args={[0.07, 0.2, 0.15]} />
+          <meshMatcapMaterial matcap={mc.shellLight} />
         </mesh>
-        <mesh position={[s * 0.035, 0.06, 0]}>
-          <boxGeometry args={[0.015, 0.16, 0.13]} />
+        {/* grip pad on the inner face */}
+        <mesh position={[inner * 0.038, 0.07, 0]}>
+          <boxGeometry args={[0.018, 0.16, 0.12]} />
           <meshMatcapMaterial matcap={mc.accent} />
         </mesh>
       </group>
