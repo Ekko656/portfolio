@@ -82,11 +82,11 @@ export default function So101Arm() {
     // smooth, full-body idle — every joint moves so the whole arm feels alive
     // (placeholder until the choreographed performance)
     const set = (name: string, v: number) => j[name]?.setJointValue(v)
-    set('Rotation', Math.sin(t * 0.18) * 0.32 + Math.sin(t * 0.46) * 0.08)
-    set('Pitch', 0.2 + Math.sin(t * 0.34) * 0.28)
-    set('Elbow', 0.6 + Math.sin(t * 0.3 + 1) * 0.32)
-    set('Wrist_Pitch', Math.sin(t * 0.43) * 0.4)
-    set('Wrist_Roll', Math.sin(t * 0.24) * 0.9)
+    set('Rotation', Math.sin(t * 0.26) * 0.7 + Math.sin(t * 0.5) * 0.12)
+    set('Pitch', 0.42 + Math.sin(t * 0.32) * 0.3)
+    set('Elbow', 0.7 + Math.sin(t * 0.3 + 1) * 0.35)
+    set('Wrist_Pitch', Math.sin(t * 0.43) * 0.45)
+    set('Wrist_Roll', Math.sin(t * 0.24) * 1.0)
     set('Jaw', 0.85 + Math.sin(t * 0.7) * 0.7)
     void delta
   })
