@@ -1,6 +1,7 @@
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import CameraRig from './CameraRig'
 import GridWorld from './GridWorld'
+import ParticleDiffuser from './ParticleDiffuser'
 import RobotArm from '../components/arm/RobotArm'
 
 function Plinth() {
@@ -24,6 +25,8 @@ export default function Scene() {
     <>
       <CameraRig />
       <GridWorld />
+
+      <ParticleDiffuser />
 
       <Plinth />
       {/* lift the arm so its base sits on the grid (it is internally offset) */}
