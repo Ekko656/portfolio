@@ -5,41 +5,11 @@ import {
   Environment,
   Lightformer,
   MeshReflectorMaterial,
-  Float,
 } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import * as THREE from 'three'
-import RobotArm from '../components/arm/RobotArm'
+import So101Arm from '../components/arm/So101Arm'
 import Motes from './Motes'
-
-/** Glowing energy core in a containment cradle — the scene's colour + bloom. */
-function PowerCore() {
-  return (
-    <group position={[1.7, 0.55, 1.2]}>
-      <Float speed={3} rotationIntensity={0.6} floatIntensity={0.5}>
-        <mesh>
-          <icosahedronGeometry args={[0.22, 0]} />
-          <meshStandardMaterial
-            color="#0a1830"
-            emissive="#39c6ff"
-            emissiveIntensity={3.2}
-            toneMapped={false}
-          />
-        </mesh>
-        <pointLight color="#39c6ff" intensity={6} distance={4} />
-      </Float>
-      {/* cradle */}
-      <mesh position={[0, -0.42, 0]} castShadow>
-        <cylinderGeometry args={[0.26, 0.34, 0.18, 6]} />
-        <meshStandardMaterial color="#2a3242" metalness={1} roughness={0.4} />
-      </mesh>
-      <mesh position={[0, -0.31, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.26, 0.32, 6]} />
-        <meshStandardMaterial color="#0a1830" emissive="#39c6ff" emissiveIntensity={1.6} toneMapped={false} />
-      </mesh>
-    </group>
-  )
-}
 
 /** Tiered dais the arm stands on. */
 function Dais() {
@@ -88,10 +58,9 @@ function World() {
       </mesh>
 
       <Dais />
-      <group position={[0, 1.4, 0]}>
-        <RobotArm />
+      <group position={[0, 0.23, 0]}>
+        <So101Arm />
       </group>
-      <PowerCore />
       <Motes />
     </>
   )
@@ -115,8 +84,8 @@ function Lighting() {
       </directionalLight>
       {/* cool rim from behind */}
       <spotLight position={[-6, 5, -5]} angle={0.6} penumbra={1} intensity={120} color="#4f7bd6" distance={30} />
-      {/* warm kicker */}
-      <pointLight position={[5, 1.5, -3]} intensity={20} color="#ff8a4c" distance={16} />
+      {/* subtle warm kicker (kept low so the metal stays steel, not gold) */}
+      <pointLight position={[5, 1.5, -3]} intensity={9} color="#ffd2b0" distance={16} />
 
       {/* studio reflections (no HDRI fetch) */}
       <Environment resolution={256}>
