@@ -9,6 +9,7 @@ import {
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import * as THREE from 'three'
 import So101Arm from '../components/arm/So101Arm'
+import Surroundings from './Surroundings'
 import Motes from './Motes'
 
 /** Tiered dais the arm stands on. */
@@ -57,6 +58,7 @@ function World() {
         />
       </mesh>
 
+      <Surroundings />
       <Dais />
       <group position={[0, 0.23, 0]}>
         <So101Arm />
