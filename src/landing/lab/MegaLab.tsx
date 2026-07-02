@@ -100,7 +100,8 @@ export default function MegaLab() {
       </mesh>
 
       {/* walls — WallAstra_Straight runs 4 units along its local Z.
-          back row faces +Z (toward camera), side rows face inward. */}
+          back row faces +Z (toward camera), side rows face inward,
+          front row closes the room behind the camera. */}
       {wallCells.map((g) => (
         <Model key={`wb${g}`} name="WallAstra_Straight" position={[g * TILE, 0, -EDGE]} rotation={[0, Math.PI / 2, 0]} />
       ))}
@@ -109,6 +110,38 @@ export default function MegaLab() {
       ))}
       {wallCells.map((g) => (
         <Model key={`wr${g}`} name="WallAstra_Straight" position={[EDGE, 0, g * TILE]} rotation={[0, Math.PI, 0]} />
+      ))}
+      {/* front closure — a full-height dark panel well beyond the camera's
+          max orbit distance, so swinging the view never shows void */}
+      <mesh position={[0, 4.6, 14.2]}>
+        <boxGeometry args={[30, 9.4, 0.4]} />
+        <meshStandardMaterial color="#141a24" metalness={0.6} roughness={0.65} />
+      </mesh>
+
+      {/* upper wall bands — close the gap from the 3m kit walls to the
+          ceiling so there is no visible "outside" */}
+      {(
+        [
+          [0, -EDGE - 0.1, 0, 0.19], // back — strip faces +Z (inward)
+          [-EDGE - 0.1, 0, Math.PI / 2, 0.19], // left — faces +X
+          [EDGE + 0.1, 0, Math.PI / 2, -0.19], // right — faces -X
+        ] as [number, number, number, number][]
+      ).map(([x, z, ry, off], i) => (
+        <group key={`band${i}`} position={[x, 0, z]} rotation={[0, ry, 0]}>
+          <mesh position={[0, 6.15, 0]}>
+            <boxGeometry args={[25, 6.3, 0.35]} />
+            <meshStandardMaterial color="#161c27" metalness={0.6} roughness={0.62} />
+          </mesh>
+          {/* seam + faint light strip where the band meets the kit wall */}
+          <mesh position={[0, 3.12, off]}>
+            <boxGeometry args={[24.6, 0.06, 0.02]} />
+            <meshStandardMaterial color="#0c1424" emissive="#3f6dbf" emissiveIntensity={1.1} toneMapped={false} />
+          </mesh>
+          <mesh position={[0, 7.9, off]}>
+            <boxGeometry args={[24.6, 0.05, 0.02]} />
+            <meshStandardMaterial color="#10151f" metalness={0.5} roughness={0.6} />
+          </mesh>
+        </group>
       ))}
 
       {/* structural columns at the corners + wall midpoints */}

@@ -102,7 +102,7 @@ export default function LandingScene() {
         enableDamping
         dampingFactor={0.08}
         minDistance={5.5}
-        maxDistance={12}
+        maxDistance={10.5}
         minPolarAngle={1.0}
         maxPolarAngle={1.5}
         minAzimuthAngle={-0.8}

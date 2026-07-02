@@ -13,19 +13,36 @@ type Joints = Record<string, { setJointValue: (v: number) => void }>
  * floor. Values: [Rotation, Pitch, Elbow, Wrist_Pitch, Wrist_Roll, Jaw].
  */
 type Pose = [number, number, number, number, number, number]
+// Geometry note: Pitch=0 → upper arm vertical; Elbow≈0.72 → forearm aligned
+// with the upper arm. E < 0.72 swings the forearm UP, E > 0.72 folds it down.
+// Poses are chosen so BOTH segments travel — leans back, forearm skyward,
+// wide sweeps — never the dead "first up, second hanging" default.
 const POSES: { v: Pose; move: number; hold: number }[] = [
-  { v: [0.15, 0.3, 0.45, 0.15, 0.3, 1.3], move: 2.4, hold: 0.8 }, // poised centre
-  { v: [0.85, 0.68, 0.32, -0.3, 1.2, 0.35], move: 2.8, hold: 0.6 }, // reach out right
-  { v: [0.5, 0.12, 1.02, 0.42, -0.9, 1.6], move: 2.2, hold: 0.9 }, // curl up + inspect
-  { v: [-0.6, 0.55, 0.55, 0.05, 0.6, 0.2], move: 3.0, hold: 0.5 }, // sweep front-left
-  { v: [-0.95, 0.85, 0.22, -0.45, -1.3, 1.0], move: 2.6, hold: 0.7 }, // far left survey
-  { v: [0.0, 0.06, 0.7, 0.3, 0.0, 1.7], move: 2.4, hold: 1.0 }, // tall neutral
+  { v: [0.1, 0.35, 0.55, 0.1, 0.2, 1.2], move: 2.4, hold: 0.7 }, // poised
+  { v: [0.7, 0.9, 0.1, -0.55, 0.9, 1.5], move: 2.8, hold: 0.6 }, // lean fwd, forearm up
+  { v: [-0.45, -0.55, 0.3, -0.35, -1.1, 0.4], move: 2.9, hold: 0.8 }, // lean back, gaze up
+  { v: [0.45, 0.75, 1.0, 0.3, 0.5, 0.15], move: 2.3, hold: 0.6 }, // forward inspect
+  { v: [-0.85, 0.5, 0.35, -0.25, 1.3, 1.6], move: 3.0, hold: 0.6 }, // sweep left, rising
+  { v: [0.05, 0.15, 0.3, -0.45, -0.6, 1.0], move: 2.5, hold: 0.9 }, // tall, open
 ]
 const JOINT_NAMES = ['Rotation', 'Pitch', 'Elbow', 'Wrist_Pitch', 'Wrist_Roll', 'Jaw'] as const
 
 const smootherstep = (x: number) => {
   const t = Math.min(Math.max(x, 0), 1)
   return t * t * t * (t * (t * 6 - 15) + 10)
+}
+
+/**
+ * Floor-safety guard applied every frame (covers pose transitions too):
+ * keeps the forearm's absolute angle from vertical under control so the
+ * gripper can never pass through the dais.
+ */
+function guard(v: number[]): number[] {
+  const [R, P, E0, WP0, WR, J] = v
+  const E = Math.min(E0, 2.0 - P) // forearm angle P+(E-0.72) ≤ ~1.28
+  const theta2 = P + (E - 0.72)
+  const WP = Math.min(WP0, 1.5 - theta2) // wrist can't push the tip lower
+  return [R, P, E, WP, WR, J]
 }
 
 /**
@@ -111,12 +128,15 @@ export default function So101Arm() {
     const elapsed = t - seq.start
     const k = smootherstep(elapsed / move)
 
-    JOINT_NAMES.forEach((name, i) => {
+    const blended = JOINT_NAMES.map((_, i) => {
       // tiny breathing dither on top so holds never look frozen
       const dither = Math.sin(t * (0.9 + i * 0.17) + i * 1.7) * 0.025
-      const v = cur[i] + (nxt[i] - cur[i]) * k + dither
-      j[name]?.setJointValue(v)
-      armState[name] = v as never
+      return cur[i] + (nxt[i] - cur[i]) * k + dither
+    })
+    const safe = guard(blended)
+    JOINT_NAMES.forEach((name, i) => {
+      j[name]?.setJointValue(safe[i])
+      armState[name] = safe[i] as never
     })
 
     if (elapsed > move + hold) {
