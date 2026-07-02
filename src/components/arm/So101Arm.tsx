@@ -3,8 +3,30 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import URDFLoader from 'urdf-loader'
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js'
+import { armState } from '../../landing/armState'
 
 type Joints = Record<string, { setJointValue: (v: number) => void }>
+
+/**
+ * Choreographed idle: the arm eases between hand-tuned poses, holding briefly
+ * at each — every joint participates and no pose can dip the gripper into the
+ * floor. Values: [Rotation, Pitch, Elbow, Wrist_Pitch, Wrist_Roll, Jaw].
+ */
+type Pose = [number, number, number, number, number, number]
+const POSES: { v: Pose; move: number; hold: number }[] = [
+  { v: [0.15, 0.3, 0.45, 0.15, 0.3, 1.3], move: 2.4, hold: 0.8 }, // poised centre
+  { v: [0.85, 0.68, 0.32, -0.3, 1.2, 0.35], move: 2.8, hold: 0.6 }, // reach out right
+  { v: [0.5, 0.12, 1.02, 0.42, -0.9, 1.6], move: 2.2, hold: 0.9 }, // curl up + inspect
+  { v: [-0.6, 0.55, 0.55, 0.05, 0.6, 0.2], move: 3.0, hold: 0.5 }, // sweep front-left
+  { v: [-0.95, 0.85, 0.22, -0.45, -1.3, 1.0], move: 2.6, hold: 0.7 }, // far left survey
+  { v: [0.0, 0.06, 0.7, 0.3, 0.0, 1.7], move: 2.4, hold: 1.0 }, // tall neutral
+]
+const JOINT_NAMES = ['Rotation', 'Pitch', 'Elbow', 'Wrist_Pitch', 'Wrist_Roll', 'Jaw'] as const
+
+const smootherstep = (x: number) => {
+  const t = Math.min(Math.max(x, 0), 1)
+  return t * t * t * (t * (t * 6 - 15) + 10)
+}
 
 /**
  * The real open-source SO-ARM101 (TheRobotStudio / MuammerBay ROS2 URDF),
@@ -15,6 +37,7 @@ type Joints = Record<string, { setJointValue: (v: number) => void }>
 export default function So101Arm() {
   const [robot, setRobot] = useState<THREE.Object3D | null>(null)
   const joints = useRef<Joints | null>(null)
+  const seqRef = useRef({ idx: 0, start: 0 })
 
   useEffect(() => {
     const manager = new THREE.LoadingManager()
@@ -79,15 +102,28 @@ export default function So101Arm() {
     const j = joints.current
     if (!j) return
     const t = clock.elapsedTime
-    // smooth, full-body idle — every joint moves so the whole arm feels alive
-    // (placeholder until the choreographed performance)
-    const set = (name: string, v: number) => j[name]?.setJointValue(v)
-    set('Rotation', Math.sin(t * 0.26) * 0.7 + Math.sin(t * 0.5) * 0.12)
-    set('Pitch', 0.42 + Math.sin(t * 0.32) * 0.3)
-    set('Elbow', 0.7 + Math.sin(t * 0.3 + 1) * 0.35)
-    set('Wrist_Pitch', Math.sin(t * 0.43) * 0.45)
-    set('Wrist_Roll', Math.sin(t * 0.24) * 1.0)
-    set('Jaw', 0.85 + Math.sin(t * 0.7) * 0.7)
+    // pose-sequencer idle: ease between safe keyframed poses, all joints live.
+    // Values are also published to armState for the holographic telemetry.
+    const seq = seqRef.current
+    const cur = POSES[seq.idx].v
+    const nxt = POSES[(seq.idx + 1) % POSES.length].v
+    const { move, hold } = POSES[(seq.idx + 1) % POSES.length]
+    const elapsed = t - seq.start
+    const k = smootherstep(elapsed / move)
+
+    JOINT_NAMES.forEach((name, i) => {
+      // tiny breathing dither on top so holds never look frozen
+      const dither = Math.sin(t * (0.9 + i * 0.17) + i * 1.7) * 0.025
+      const v = cur[i] + (nxt[i] - cur[i]) * k + dither
+      j[name]?.setJointValue(v)
+      armState[name] = v as never
+    })
+
+    if (elapsed > move + hold) {
+      seq.idx = (seq.idx + 1) % POSES.length
+      seq.start = t
+    }
+    armState.t = t
     void delta
   })
 
