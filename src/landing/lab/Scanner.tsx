@@ -1,11 +1,12 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { ignition } from '../ignition'
 
 /**
  * Animated effects on the dais: two counter-rotating scanner arcs and a
  * breathing pulse on the containment ring — constant, subtle motion at the
- * base of the hero.
+ * base of the hero. Flares hard while the ignition surge runs.
  */
 export default function Scanner() {
   const arcA = useRef<THREE.Group>(null)
@@ -14,10 +15,14 @@ export default function Scanner() {
 
   useFrame(({ clock }, delta) => {
     const t = clock.elapsedTime
-    if (arcA.current) arcA.current.rotation.y += delta * 0.5
-    if (arcB.current) arcB.current.rotation.y -= delta * 0.32
+    const surging = ignition.phase === 'surge'
+    const speed = surging ? 4.5 : 1
+    if (arcA.current) arcA.current.rotation.y += delta * 0.5 * speed
+    if (arcB.current) arcB.current.rotation.y -= delta * 0.32 * speed
     if (pulse.current)
-      pulse.current.emissiveIntensity = 1.4 + Math.sin(t * 1.6) * 0.7
+      pulse.current.emissiveIntensity = surging
+        ? 4.5 + Math.sin(t * 12) * 1.5
+        : 1.4 + Math.sin(t * 1.6) * 0.7
   })
 
   return (

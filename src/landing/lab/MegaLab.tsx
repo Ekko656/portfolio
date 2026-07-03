@@ -5,14 +5,17 @@ import Model, { preloadKit } from './Model'
 import HoloTelemetry from './HoloTelemetry'
 import Drone from './Drone'
 import Scanner from './Scanner'
+import IgnitionCore from './IgnitionCore'
+import { HERO_Z } from '../ignition'
 
 const TILE = 4
-const EDGE = 12 // room half-size; walls sit on the outermost floor tiles
+const EDGE = 16 // room half-size (walls sit here)
 
 const USED = [
   'Platform_DarkPlates',
   'WallAstra_Straight',
   'Column_Large_Straight',
+  'TopCables_Straight',
   'Prop_Computer',
   'Prop_Crate3',
   'Prop_Crate4',
@@ -35,10 +38,10 @@ const USED = [
 ]
 preloadKit(USED)
 
-const DECAL_Y = 0.015 // just above the floor plates
-
-const cells = [-3, -2, -1, 0, 1, 2, 3] // 7×7 floor, edges at ±14
-const wallCells = [-2, -1, 0, 1, 2] // wall segments across ±10, corners left to columns
+const DECAL_Y = 0.015
+const floorCells = [-4, -3, -2, -1, 0, 1, 2, 3, 4]
+const wallCells = [-3, -2, -1, 0, 1, 2, 3]
+const ceilCells = [-2, -1, 0, 1, 2]
 
 /** Pulsing warning beacon (mounted above the bay door). */
 function Beacon({ position }: { position: [number, number, number] }) {
@@ -102,37 +105,44 @@ function HangLight({ position, color = '#cfe0ff' }: { position: [number, number,
       </mesh>
       <group position={[0, -0.85, 0]}>
         <Model name="Prop_Light_Wide" position={[0, 0, 0]} />
-        <pointLight position={[0, -0.35, 0]} intensity={7} distance={11} color={color} />
+        <pointLight position={[0, -0.35, 0]} intensity={11} distance={17} color={color} />
       </group>
     </group>
   )
 }
 
 /**
- * The robotics bay: uniform dark-plate floor, one consistent wall family
- * (back + both sides; front open to the camera), structural corner columns,
- * live telemetry holograms, consoles, a patrol drone, and pooled hanging light.
+ * The robotics bay: uniform dark-plate floor, three-storey walls with a
+ * detailed cable-run ceiling over the centre, bay door + beacon, consoles,
+ * safety rails around the work zone, live telemetry, drone patrol.
  */
 export default function MegaLab() {
   return (
     <group>
-      {/* floor — uniform */}
-      {cells.map((gx) =>
-        cells.map((gz) => (
+      {/* floor */}
+      {floorCells.map((gx) =>
+        floorCells.map((gz) => (
           <Model key={`f${gx}${gz}`} name="Platform_DarkPlates" position={[gx * TILE, 0, gz * TILE]} />
         )),
       )}
 
-      {/* ceiling plane for enclosure */}
-      <mesh position={[0, 9.2, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[34, 34]} />
+      {/* detailed cable-run ceiling over the centre + dark backdrop above */}
+      {ceilCells.map((gx) =>
+        ceilCells.map((gz) => (
+          <Model
+            key={`c${gx}${gz}`}
+            name="TopCables_Straight"
+            position={[gx * TILE, 12.15, gz * TILE]}
+          />
+        )),
+      )}
+      <mesh position={[0, 12.55, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[44, 44]} />
         <meshStandardMaterial color="#0a0d13" metalness={0.4} roughness={0.95} side={THREE.DoubleSide} />
       </mesh>
 
-      {/* walls — WallAstra_Straight runs 4 units along its local Z.
-          back row faces +Z (toward camera), side rows face inward,
-          front row closes the room behind the camera. */}
-      {[0, 3.03, 6.06].map((y) => (
+      {/* four-storey walls (back, left, right) */}
+      {[0, 3.03, 6.06, 9.09].map((y) => (
         <group key={`row${y}`}>
           {wallCells.map((g) => (
             <Model key={`wb${g}`} name="WallAstra_Straight" position={[g * TILE, y, -EDGE]} rotation={[0, Math.PI / 2, 0]} />
@@ -145,7 +155,7 @@ export default function MegaLab() {
           ))}
         </group>
       ))}
-      {/* flush trim beam closing the last sliver to the ceiling */}
+      {/* trim beam closing the last sliver to the ceiling */}
       {(
         [
           [0, -EDGE, 0],
@@ -153,51 +163,29 @@ export default function MegaLab() {
           [EDGE, 0, Math.PI / 2],
         ] as [number, number, number][]
       ).map(([x, z, ry], i) => (
-        <mesh key={`trim${i}`} position={[x, 9.15, z]} rotation={[0, ry, 0]}>
-          <boxGeometry args={[25, 0.35, 0.5]} />
+        <mesh key={`trim${i}`} position={[x, 12.3, z]} rotation={[0, ry, 0]}>
+          <boxGeometry args={[2 * EDGE + 1, 0.45, 0.5]} />
           <meshStandardMaterial color="#12171f" metalness={0.6} roughness={0.6} />
         </mesh>
       ))}
-      {/* front closure — a full-height dark panel well beyond the camera's
-          max orbit distance, so swinging the view never shows void */}
-      <mesh position={[0, 4.6, 14.2]}>
-        <boxGeometry args={[30, 9.4, 0.4]} />
+      {/* front closure — full-height dark panel beyond the camera's max orbit */}
+      <mesh position={[0, 6.3, EDGE + 2.2]}>
+        <boxGeometry args={[2 * EDGE + 8, 13, 0.4]} />
         <meshStandardMaterial color="#141a24" metalness={0.6} roughness={0.65} />
       </mesh>
 
-      {/* upper wall bands — close the gap from the 3m kit walls to the
-          ceiling so there is no visible "outside" */}
-      {(
-        [
-          [0, -EDGE - 0.1, 0, 0.19], // back — strip faces +Z (inward)
-          [-EDGE - 0.1, 0, Math.PI / 2, 0.19], // left — faces +X
-          [EDGE + 0.1, 0, Math.PI / 2, -0.19], // right — faces -X
-        ] as [number, number, number, number][]
-      ).map(([x, z, ry, off], i) => (
-        <group key={`band${i}`} position={[x, 0, z]} rotation={[0, ry, 0]}>
-          {/* two stories of kit wall reach 6.05; band closes 6.05 → ceiling */}
-          <mesh position={[0, 7.7, 0]}>
-            <boxGeometry args={[25, 3.3, 0.35]} />
-            <meshStandardMaterial color="#161c27" metalness={0.6} roughness={0.62} />
-          </mesh>
-          {/* seam light strip where the band meets the kit wall */}
-          <mesh position={[0, 6.12, off]}>
-            <boxGeometry args={[24.6, 0.06, 0.02]} />
-            <meshStandardMaterial color="#0c1424" emissive="#3f6dbf" emissiveIntensity={1.1} toneMapped={false} />
-          </mesh>
-        </group>
-      ))}
-
-      {/* structural columns at the corners + wall midpoints */}
+      {/* structural columns at corners + wall midpoints */}
       {[
         [-EDGE, -EDGE],
         [EDGE, -EDGE],
         [-EDGE, EDGE],
         [EDGE, EDGE],
-        [0 - EDGE, 0],
+        [-EDGE, 0],
         [EDGE, 0],
+        [0 - EDGE / 2, -EDGE],
+        [EDGE / 2, -EDGE],
       ].map(([x, z], i) => (
-        <Model key={`c${i}`} name="Column_Large_Straight" position={[x, 0, z]} />
+        <Model key={`col${i}`} name="Column_Large_Straight" position={[x, 0, z]} />
       ))}
 
       {/* bay door centred in the back wall, beacon above it */}
@@ -206,111 +194,102 @@ export default function MegaLab() {
         <Model name="Door_Metal" position={[0, 0, -0.12]} />
       </group>
       <Beacon position={[0, 5.6, -EDGE + 1.3]} />
-      <Model name="Prop_AccessPoint" position={[3.1, 0, -EDGE + 0.85]} rotation={[0, Math.PI / 2, 0]} />
+      <Model name="Prop_AccessPoint" position={[3.4, 0, -EDGE + 0.85]} rotation={[0, Math.PI / 2, 0]} />
 
-      {/* consoles: two flanking the door + one on each side wall */}
-      {(
-        [
-          [-5.5, -EDGE + 0.9, 0],
-          [5.5, -EDGE + 0.9, 0],
-        ] as [number, number, number][]
-      ).map(([x, z, ry], i) => (
+      {/* consoles: two flanking the door + one per side wall */}
+      {[-6.5, 6.5].map((x, i) => (
         <group key={`console${i}`}>
-          <Model name="Prop_Computer" position={[x, 0, z]} rotation={[0, ry, 0]} />
-          <BlinkPips position={[x, 1.75, z + 0.25]} />
+          <Model name="Prop_Computer" position={[x, 0, -EDGE + 0.9]} />
+          <BlinkPips position={[x, 1.75, -EDGE + 1.15]} />
         </group>
       ))}
       <group>
-        <Model name="Prop_Computer" position={[-EDGE + 0.9, 0, -3]} rotation={[0, Math.PI / 2, 0]} />
-        <BlinkPips position={[-EDGE + 1.15, 1.75, -3]} />
+        <Model name="Prop_Computer" position={[-EDGE + 0.9, 0, -4]} rotation={[0, Math.PI / 2, 0]} />
+        <BlinkPips position={[-EDGE + 1.15, 1.75, -4]} />
       </group>
       <group>
-        <Model name="Prop_Computer" position={[EDGE - 0.9, 0, 5]} rotation={[0, -Math.PI / 2, 0]} />
-        <BlinkPips position={[EDGE - 1.15, 1.75, 5]} />
+        <Model name="Prop_Computer" position={[EDGE - 0.9, 0, 6]} rotation={[0, -Math.PI / 2, 0]} />
+        <BlinkPips position={[EDGE - 1.15, 1.75, 6]} />
       </group>
 
       {/* wall vents on the second storey */}
-      <Model name="Prop_Vent_Big" position={[-8, 4.4, -EDGE + 0.65]} rotation={[Math.PI / 2, 0, 0]} />
-      <Model name="Prop_Vent_Big" position={[8, 4.4, -EDGE + 0.65]} rotation={[Math.PI / 2, 0, 0]} />
-      <Model name="Prop_Vent_Big" position={[-EDGE + 0.65, 4.4, 4]} rotation={[Math.PI / 2, 0, Math.PI / 2]} />
+      <Model name="Prop_Vent_Big" position={[-9, 4.4, -EDGE + 0.65]} rotation={[Math.PI / 2, 0, 0]} />
+      <Model name="Prop_Vent_Big" position={[9, 4.4, -EDGE + 0.65]} rotation={[Math.PI / 2, 0, 0]} />
+      <Model name="Prop_Vent_Big" position={[-EDGE + 0.65, 4.4, 5]} rotation={[Math.PI / 2, 0, Math.PI / 2]} />
 
-      {/* workbench corner: chest + item holder */}
-      <group position={[9, 0, -8.5]} rotation={[0, -0.7, 0]}>
-        <Model name="Prop_Chest" position={[0, 0, 0]} />
-        <Model name="Prop_ItemHolder" position={[1.6, 0, 0.3]} rotation={[0, 0.4, 0]} />
-        <Model name="Prop_Barrel_Large" position={[-1.3, 0, 0.5]} />
-      </group>
-
-      {/* work clutter — one asymmetric cluster each side, out of the hero's way */}
-      <group position={[-8.5, 0, 4]} rotation={[0, 0.4, 0]}>
+      {/* work clutter, hugging the room edges */}
+      <group position={[-10.5, 0, 6]} rotation={[0, 0.4, 0]}>
         <Model name="Prop_Crate3" position={[0, 0, 0]} />
         <Model name="Prop_Crate4" position={[1.3, 0, 0.4]} rotation={[0, -0.5, 0]} />
         <Model name="Prop_Crate3" position={[0.4, 1.0, 0.15]} rotation={[0, 0.9, 0]} scale={0.8} />
         <Model name="Prop_Barrel_Large" position={[-1.2, 0, 0.8]} />
       </group>
-      <group position={[8.7, 0, 1.5]} rotation={[0, -0.6, 0]}>
+      <group position={[11, 0, 3.5]} rotation={[0, -0.6, 0]}>
         <Model name="Prop_Barrel_Large" position={[0, 0, 0]} />
         <Model name="Prop_Barrel_Large" position={[0.7, 0, 0.5]} />
         <Model name="Prop_Crate4" position={[-0.4, 0, 1.4]} rotation={[0, 0.3, 0]} />
       </group>
+      <group position={[12, 0, -11]} rotation={[0, -0.7, 0]}>
+        <Model name="Prop_Chest" position={[0, 0, 0]} />
+        <Model name="Prop_ItemHolder" position={[1.6, 0, 0.3]} rotation={[0, 0.4, 0]} />
+        <Model name="Prop_Barrel_Large" position={[-1.3, 0, 0.5]} />
+      </group>
 
-      {/* floor markings — a marked work zone around the dais */}
-      {(
-        [
-          [2.4, 2.4, 0],
-          [2.4, -2.4, Math.PI / 2],
-          [-2.4, -2.4, Math.PI],
-          [-2.4, 2.4, -Math.PI / 2],
-        ] as [number, number, number][]
-      ).map(([x, z, r], i) => (
-        <Model key={`ring${i}`} name="Decal_Line_90_Round_Large" position={[x, DECAL_Y, z]} rotation={[0, r, 0]} />
-      ))}
-      {[4.4, 5.6, 6.8].map((z, i) => (
-        <Model key={`dash${i}`} name="Decal_Dashes" position={[0, DECAL_Y, z]} rotation={[0, Math.PI / 2, 0]} />
-      ))}
-      {[-6, 6].map((x, i) => (
+      {/* floor markings — work zone rings follow the hero forward */}
+      <group position={[0, 0, HERO_Z]}>
+        {(
+          [
+            [2.4, 2.4, 0],
+            [2.4, -2.4, Math.PI / 2],
+            [-2.4, -2.4, Math.PI],
+            [-2.4, 2.4, -Math.PI / 2],
+          ] as [number, number, number][]
+        ).map(([x, z, r], i) => (
+          <Model key={`ring${i}`} name="Decal_Line_90_Round_Large" position={[x, DECAL_Y, z]} rotation={[0, r, 0]} />
+        ))}
+        {[5.4, 6.6, 7.8].map((z, i) => (
+          <Model key={`dash${i}`} name="Decal_Dashes" position={[0, DECAL_Y, z]} rotation={[0, Math.PI / 2, 0]} />
+        ))}
+      </group>
+      {[-8, 8].map((x, i) => (
         <group key={`lane${i}`}>
-          <Model name="Decal_Line_Straight" position={[x, DECAL_Y, -4]} />
-          <Model name="Decal_Line_Straight" position={[x, DECAL_Y, 0]} />
-          <Model name="Decal_Line_Straight" position={[x, DECAL_Y, 4]} />
+          <Model name="Decal_Line_Straight" position={[x, DECAL_Y, -6]} />
+          <Model name="Decal_Line_Straight" position={[x, DECAL_Y, -2]} />
+          <Model name="Decal_Line_Straight" position={[x, DECAL_Y, 2]} />
+          <Model name="Decal_Line_Straight" position={[x, DECAL_Y, 6]} />
         </group>
       ))}
-      <Model name="Decal_Logo" position={[-7, DECAL_Y, 8.5]} rotation={[0, 0.35, 0]} />
-      <Model name="Decal_Sign" position={[3.2, DECAL_Y, 3.4]} rotation={[0, -0.4, 0]} />
+      <Model name="Decal_Logo" position={[-9, DECAL_Y, 10.5]} rotation={[0, 0.35, 0]} />
+      <Model name="Decal_Sign" position={[4, DECAL_Y, 4.2]} rotation={[0, -0.4, 0]} />
 
-      {/* cabling from the consoles toward the dais + along the wall base */}
-      <Model name="Prop_Cable_3" position={[0.2, 0.01, -8]} />
-      <Model name="Prop_Cable_1" position={[-4.6, 0.01, -9.6]} rotation={[0, 0.7, 0]} />
-      <Model name="Prop_Cable_1" position={[5.2, 0.01, -9.2]} rotation={[0, -1.1, 0]} />
-      <Model name="Prop_Cable_1" position={[-9.8, 0.01, 0.5]} rotation={[0, 1.5, 0]} />
+      {/* cabling from consoles toward the dais + along wall bases */}
+      <Model name="Prop_Cable_3" position={[0.2, 0.01, -10]} />
+      <Model name="Prop_Cable_1" position={[-5.6, 0.01, -13.2]} rotation={[0, 0.7, 0]} />
+      <Model name="Prop_Cable_1" position={[6.4, 0.01, -12.8]} rotation={[0, -1.1, 0]} />
+      <Model name="Prop_Cable_1" position={[-13.5, 0.01, 0.5]} rotation={[0, 1.5, 0]} />
+      <Model name="Prop_Vent_Wide" position={[-14.4, 0.01, -6]} />
+      <Model name="Prop_Vent_Wide" position={[14.4, 0.01, 3]} rotation={[0, Math.PI, 0]} />
 
-      {/* floor vents near the side walls */}
-      <Model name="Prop_Vent_Wide" position={[-10.6, 0.01, -5]} />
-      <Model name="Prop_Vent_Wide" position={[10.6, 0.01, 2]} rotation={[0, Math.PI, 0]} />
+      {/* live holographic telemetry — tight to the arm, always in frame */}
+      <group position={[0, 0, HERO_Z]}>
+        <HoloTelemetry position={[3.5, 2.7, -0.9]} rotation={[0, -0.5, 0]} scale={0.9} />
+        <HoloTelemetry position={[-3.6, 2.95, -1.2]} rotation={[0, 0.45, 0]} scale={0.8} title="BAY-07 · SYSTEMS" />
+      </group>
+      <HoloTelemetry position={[-10, 5.6, -10]} rotation={[0, 0.65, 0]} scale={0.65} title="DRONE LINK · PATROL" />
 
-      {/* live holographic telemetry flanking the arm */}
-      <HoloTelemetry position={[4.4, 2.6, -1.5]} rotation={[0, -0.55, 0]} />
-      <HoloTelemetry
-        position={[-4.6, 2.9, -2.2]}
-        rotation={[0, 0.5, 0]}
-        scale={0.85}
-        title="BAY-07 · SYSTEMS"
-      />
-      <HoloTelemetry
-        position={[-8.2, 5.4, -7.5]}
-        rotation={[0, 0.65, 0]}
-        scale={0.65}
-        title="DRONE LINK · PATROL"
-      />
-
-      {/* hanging light pools */}
-      <HangLight position={[-5, 9.2, 3]} />
-      <HangLight position={[5, 9.2, 3]} />
-      <HangLight position={[0, 9.2, -6]} color="#ffd9b8" />
+      {/* hanging light pools (12m ceiling) */}
+      <HangLight position={[-6, 12.2, 5]} />
+      <HangLight position={[6, 12.2, 5]} />
+      <HangLight position={[0, 12.2, -8]} color="#ffd9b8" />
 
       {/* ambient events */}
       <Drone />
-      <Scanner />
+
+      {/* hero-cluster effects follow the dais forward */}
+      <group position={[0, 0, HERO_Z]}>
+        <Scanner />
+        <IgnitionCore />
+      </group>
     </group>
   )
 }

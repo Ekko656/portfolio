@@ -63,7 +63,7 @@ export default function Drone() {
     const a = t * 0.12
     const px = Math.sin(a) * 7.2
     const pz = Math.sin(a * 2) * 3.2 - 4.5
-    const py = 4.6 + Math.sin(t * 0.5) * 0.35
+    const py = 7.2 + Math.sin(t * 0.5) * 0.4
 
     // analytic velocity → heading, forward pitch, bank
     const vx = Math.cos(a) * 7.2 * 0.12

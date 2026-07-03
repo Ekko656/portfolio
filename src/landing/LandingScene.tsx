@@ -6,6 +6,7 @@ import * as THREE from 'three'
 import So101Arm from '../components/arm/So101Arm'
 import MegaLab from './lab/MegaLab'
 import Motes from './Motes'
+import { HERO_Z } from './ignition'
 
 /** Tiered dais the arm stands on. */
 function Dais() {
@@ -35,11 +36,12 @@ function World() {
   return (
     <>
       <MegaLab />
-      <Dais />
-      {/* the hero — docked into the dais: the electronics case sits inside
-          the pedestal like a socket, only its top proud of the surface */}
-      <group position={[0, -0.03, 0]}>
-        <So101Arm />
+      {/* hero cluster pulled toward the camera so the room reads behind it */}
+      <group position={[0, 0, HERO_Z]}>
+        <Dais />
+        <group position={[0, -0.03, 0]}>
+          <So101Arm />
+        </group>
       </group>
       <Motes count={450} />
     </>
@@ -84,10 +86,10 @@ export default function LandingScene() {
         toneMapping: THREE.ACESFilmicToneMapping,
         toneMappingExposure: 1.05,
       }}
-      camera={{ position: [0, 3.2, 12.8], fov: 46 }}
+      camera={{ position: [0, 4.0, 17], fov: 44 }}
     >
       <color attach="background" args={['#0b0f17']} />
-      <fog attach="fog" args={['#0b0f17', 13, 34]} />
+      <fog attach="fog" args={['#0b0f17', 16, 46]} />
 
       <Suspense fallback={null}>
         <Lighting />
@@ -106,13 +108,13 @@ export default function LandingScene() {
         enablePan={false}
         enableDamping
         dampingFactor={0.08}
-        minDistance={6}
-        maxDistance={13}
+        minDistance={7}
+        maxDistance={16}
         minPolarAngle={1.0}
         maxPolarAngle={1.5}
         minAzimuthAngle={-0.8}
         maxAzimuthAngle={0.8}
-        target={[0, 1.7, 0]}
+        target={[0, 1.7, HERO_Z]}
       />
     </Canvas>
   )

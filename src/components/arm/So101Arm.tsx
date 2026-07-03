@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import URDFLoader from 'urdf-loader'
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js'
 import { armState } from '../../landing/armState'
+import { ignition, PHASE_LEN, CRADLE_POS, SOCKET_POS, type IgnitionPhase } from '../../landing/ignition'
 
 type Joints = Record<string, { setJointValue: (v: number) => void }>
 
@@ -32,6 +33,26 @@ const JOINT_NAMES = ['Rotation', 'Pitch', 'Elbow', 'Wrist_Pitch', 'Wrist_Roll', 
 // (same verified map: mostly-extended, leaning slightly back).
 const SAFE: Pose = [0, 0.2, -1.3, -0.1, 0, 0.7]
 
+// ---- Ignition choreography (verified map) ----
+const R_CORE = Math.atan2(CRADLE_POS[0], CRADLE_POS[2]) // yaw toward the cradle
+const R_SOCK = Math.atan2(SOCKET_POS[0], SOCKET_POS[2]) // yaw toward the socket
+const IGN_POSE: Record<Exclude<IgnitionPhase, 'idle'>, Pose> = {
+  reach: [R_CORE, -1.25, -1.05, 0.65, 0, 1.6], // lean out over the cradle, jaw wide
+  grab: [R_CORE, -1.28, -1.02, 0.68, 0, 0.12], // close on the core
+  lift: [(R_CORE + R_SOCK) / 2, -0.4, -1.55, -0.25, 0, 0.12], // hoist it high
+  slot: [R_SOCK, -1.18, -0.98, 0.72, 0, 0.12], // lower into the socket
+  release: [R_SOCK, -1.18, -0.98, 0.72, 0, 1.3], // open, let it seat
+  surge: [0.15, 0.3, -1.4, -0.45, 0, 0.9], // step back and watch it light
+}
+const IGN_ORDER: Exclude<IgnitionPhase, 'idle'>[] = [
+  'reach',
+  'grab',
+  'lift',
+  'slot',
+  'release',
+  'surge',
+]
+
 const smootherstep = (x: number) => {
   const t = Math.min(Math.max(x, 0), 1)
   return t * t * t * (t * (t * 6 - 15) + 10)
@@ -51,6 +72,11 @@ export default function So101Arm() {
   const tipLinks = useRef<THREE.Object3D[]>([])
   const probe = useRef(new THREE.Vector3())
   const guardS = useRef(1) // smoothed floor-guard blend (1 = untouched pose)
+  const lastApplied = useRef<number[]>([...SAFE])
+  const lastPhase = useRef<IgnitionPhase>('idle')
+  const phaseFrom = useRef<number[]>([...SAFE])
+  const resumeFrom = useRef<number[] | null>(null)
+  const resumeStart = useRef(0)
 
   useEffect(() => {
     const manager = new THREE.LoadingManager()
@@ -100,10 +126,15 @@ export default function So101Arm() {
       built.traverse((o) => {
         const mesh = o as THREE.Mesh & { material?: THREE.Material & { name?: string } }
         if (mesh.isMesh) {
-          // the flat electronics plate + driver case read as a random box on
-          // the dais — hide them, the robot stands on its own rounded base
+          // hide the boxy electronics enclosure entirely (plate, driver case,
+          // outer shell) — the arm mounts straight onto the dais via its
+          // rotation base, no crate-like case in sight
           const src = String(mesh.userData.src)
-          if (src.includes('waveshare_mounting_plate') || src.includes('base_motor_holder')) {
+          if (
+            src.includes('waveshare_mounting_plate') ||
+            src.includes('base_motor_holder') ||
+            src.includes('base_so101_v2')
+          ) {
             mesh.visible = false
             return
           }
@@ -136,8 +167,6 @@ export default function So101Arm() {
     // debug: freeze the idle so joints can be set externally
     if ((window as unknown as Record<string, unknown>).__pause) return
     const t = clock.elapsedTime
-    // pose-sequencer idle: ease between safe keyframed poses, all joints live.
-    // Values are also published to armState for the holographic telemetry.
     const seq = seqRef.current
     const cur = POSES[seq.idx].v
     const nxt = POSES[(seq.idx + 1) % POSES.length].v
@@ -145,11 +174,52 @@ export default function So101Arm() {
     const elapsed = t - seq.start
     const k = smootherstep(elapsed / move)
 
-    const blended = JOINT_NAMES.map((_, i) => {
-      // tiny breathing dither on top so holds never look frozen
-      const dither = Math.sin(t * (0.9 + i * 0.17) + i * 1.7) * 0.025
-      return cur[i] + (nxt[i] - cur[i]) * k + dither
-    })
+    // publish the gripper tip world position for the ignition core to follow
+    if (tipLinks.current[1]) {
+      tipLinks.current[1].getWorldPosition(probe.current)
+      ignition.tip.copy(probe.current)
+    }
+
+    let blended: number[]
+    if (ignition.phase !== 'idle') {
+      // ---- scripted ignition choreography overrides the idle ----
+      const phase = ignition.phase as Exclude<IgnitionPhase, 'idle'>
+      if (lastPhase.current !== phase) {
+        lastPhase.current = phase
+        ignition.phaseStart = t
+        phaseFrom.current = [...lastApplied.current]
+      }
+      const prog = (t - ignition.phaseStart) / PHASE_LEN[phase]
+      const e = smootherstep(prog)
+      const target = IGN_POSE[phase]
+      blended = JOINT_NAMES.map((_, i) => phaseFrom.current[i] + (target[i] - phaseFrom.current[i]) * e)
+      if (prog >= 1) {
+        const next = IGN_ORDER[IGN_ORDER.indexOf(phase) + 1]
+        if (next) {
+          ignition.phase = next
+        } else {
+          ignition.phase = 'idle'
+          lastPhase.current = 'idle'
+          resumeFrom.current = [...lastApplied.current]
+          resumeStart.current = t
+          seq.idx = 0
+          seq.start = t
+        }
+      }
+    } else {
+      // pose-sequencer idle: ease between keyframed poses, all joints live
+      blended = JOINT_NAMES.map((_, i) => {
+        // tiny breathing dither on top so holds never look frozen
+        const dither = Math.sin(t * (0.9 + i * 0.17) + i * 1.7) * 0.025
+        return cur[i] + (nxt[i] - cur[i]) * k + dither
+      })
+      // smooth hand-back from wherever the choreography ended
+      if (resumeFrom.current) {
+        const rf = smootherstep((t - resumeStart.current) / 1.4)
+        blended = blended.map((v, i) => resumeFrom.current![i] + (v - resumeFrom.current![i]) * rf)
+        if (rf >= 1) resumeFrom.current = null
+      }
+    }
 
     const apply = (v: number[]) =>
       JOINT_NAMES.forEach((name, i) => j[name]?.setJointValue(v[i]))
@@ -195,11 +265,12 @@ export default function So101Arm() {
     const final = mix(Math.min(guardS.current, targetS + 0.02))
     apply(final)
 
+    lastApplied.current = final
     JOINT_NAMES.forEach((name, i) => {
       armState[name] = final[i] as never
     })
 
-    if (elapsed > move + hold) {
+    if (ignition.phase === 'idle' && elapsed > move + hold) {
       seq.idx = (seq.idx + 1) % POSES.length
       seq.start = t
     }
@@ -213,7 +284,7 @@ export default function So101Arm() {
   return (
     <primitive
       object={robot}
-      position={[-0.165, 0, -0.04]}
+      position={[-0.044, 0, -0.255]}
       rotation={[-Math.PI / 2, 0, 0]}
       scale={8}
     />
