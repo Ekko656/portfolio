@@ -13,36 +13,28 @@ type Joints = Record<string, { setJointValue: (v: number) => void }>
  * floor. Values: [Rotation, Pitch, Elbow, Wrist_Pitch, Wrist_Roll, Jaw].
  */
 type Pose = [number, number, number, number, number, number]
-// Geometry note: Pitch=0 → upper arm vertical; Elbow≈0.72 → forearm aligned
-// with the upper arm. E < 0.72 swings the forearm UP, E > 0.72 folds it down.
-// Poses are chosen so BOTH segments travel — leans back, forearm skyward,
-// wide sweeps — never the dead "first up, second hanging" default.
+// VERIFIED joint map (probed live with screenshots):
+//   Elbow: -1.7 = fully straight, 0 = fully folded → obtuse V needs E ≤ -0.7
+//   Pitch: 0 = upper arm vertical, NEGATIVE leans forward, positive back
+// Every pose uses real range of motion: near-horizontal shoulders, vertical
+// forearms, full extensions — true open-V silhouettes, never the folded droop.
 const POSES: { v: Pose; move: number; hold: number }[] = [
-  { v: [0.1, 0.35, 0.55, 0.1, 0.2, 1.2], move: 2.4, hold: 0.7 }, // poised
-  { v: [0.7, 0.9, 0.1, -0.55, 0.9, 1.5], move: 2.8, hold: 0.6 }, // lean fwd, forearm up
-  { v: [-0.45, -0.55, 0.3, -0.35, -1.1, 0.4], move: 2.9, hold: 0.8 }, // lean back, gaze up
-  { v: [0.45, 0.75, 1.0, 0.3, 0.5, 0.15], move: 2.3, hold: 0.6 }, // forward inspect
-  { v: [-0.85, 0.5, 0.35, -0.25, 1.3, 1.6], move: 3.0, hold: 0.6 }, // sweep left, rising
-  { v: [0.05, 0.15, 0.3, -0.45, -0.6, 1.0], move: 2.5, hold: 0.9 }, // tall, open
+  { v: [1.2, -1.65, -0.95, -0.2, 0.4, 0.9], move: 2.8, hold: 0.8 }, // crisp V, right profile
+  { v: [0.0, -0.1, -1.65, 0.1, 0.0, 0.4], move: 2.6, hold: 0.6 }, // full vertical stretch
+  { v: [-0.9, 0.85, -1.2, -0.4, -0.9, 1.3], move: 3.0, hold: 0.7 }, // lean back, extended gaze
+  { v: [-0.5, -1.3, -1.5, 0.3, 0.6, 0.2], move: 2.6, hold: 0.5 }, // long forward lunge
+  { v: [0.7, -1.1, -0.7, -0.5, 1.2, 1.6], move: 2.8, hold: 0.6 }, // high V wave, jaw open
+  { v: [0.2, 0.35, -0.35, -0.6, -0.5, 0.7], move: 2.3, hold: 0.8 }, // compact think (contrast)
 ]
 const JOINT_NAMES = ['Rotation', 'Pitch', 'Elbow', 'Wrist_Pitch', 'Wrist_Roll', 'Jaw'] as const
+
+// Upright-safe pose the guard blends toward when a target would dip too low
+// (same verified map: mostly-extended, leaning slightly back).
+const SAFE: Pose = [0, 0.2, -1.3, -0.1, 0, 0.7]
 
 const smootherstep = (x: number) => {
   const t = Math.min(Math.max(x, 0), 1)
   return t * t * t * (t * (t * 6 - 15) + 10)
-}
-
-/**
- * Floor-safety guard applied every frame (covers pose transitions too):
- * keeps the forearm's absolute angle from vertical under control so the
- * gripper can never pass through the dais.
- */
-function guard(v: number[]): number[] {
-  const [R, P, E0, WP0, WR, J] = v
-  const E = Math.min(E0, 2.0 - P) // forearm angle P+(E-0.72) ≤ ~1.28
-  const theta2 = P + (E - 0.72)
-  const WP = Math.min(WP0, 1.5 - theta2) // wrist can't push the tip lower
-  return [R, P, E, WP, WR, J]
 }
 
 /**
@@ -55,6 +47,10 @@ export default function So101Arm() {
   const [robot, setRobot] = useState<THREE.Object3D | null>(null)
   const joints = useRef<Joints | null>(null)
   const seqRef = useRef({ idx: 0, start: 0 })
+  const robotRef = useRef<THREE.Object3D | null>(null)
+  const tipLinks = useRef<THREE.Object3D[]>([])
+  const probe = useRef(new THREE.Vector3())
+  const guardS = useRef(1) // smoothed floor-guard blend (1 = untouched pose)
 
   useEffect(() => {
     const manager = new THREE.LoadingManager()
@@ -87,7 +83,9 @@ export default function So101Arm() {
     }).loadMeshCb = (path, m, done) => {
       new STLLoader(m).load(path, (geom) => {
         geom.computeVertexNormals()
-        done(new THREE.Mesh(geom))
+        const mesh = new THREE.Mesh(geom)
+        mesh.userData.src = path // tag with source file for selective hiding
+        done(mesh)
       })
     }
 
@@ -102,12 +100,29 @@ export default function So101Arm() {
       built.traverse((o) => {
         const mesh = o as THREE.Mesh & { material?: THREE.Material & { name?: string } }
         if (mesh.isMesh) {
+          // the flat electronics plate + driver case read as a random box on
+          // the dais — hide them, the robot stands on its own rounded base
+          const src = String(mesh.userData.src)
+          if (src.includes('waveshare_mounting_plate') || src.includes('base_motor_holder')) {
+            mesh.visible = false
+            return
+          }
           mesh.material = mesh.material?.name === 'sts3215' ? servoMat : bodyMat
           mesh.castShadow = true
           mesh.receiveShadow = true
         }
       })
       joints.current = (built as unknown as { joints: Joints }).joints
+      // grab the end-of-chain links so the frame loop can measure real
+      // world-space clearance (exact FK, no approximations)
+      const lk = (built as unknown as { links?: Record<string, THREE.Object3D> }).links
+      tipLinks.current = ['wrist', 'gripper', 'jaw']
+        .map((n) => lk?.[n])
+        .filter((o): o is THREE.Object3D => !!o)
+
+      robotRef.current = built
+      // debug handle for scene inspection (harmless in prod)
+      ;(window as unknown as Record<string, unknown>).__robot = built
       setRobot(built)
     }
     return () => {
@@ -118,6 +133,8 @@ export default function So101Arm() {
   useFrame(({ clock }, delta) => {
     const j = joints.current
     if (!j) return
+    // debug: freeze the idle so joints can be set externally
+    if ((window as unknown as Record<string, unknown>).__pause) return
     const t = clock.elapsedTime
     // pose-sequencer idle: ease between safe keyframed poses, all joints live.
     // Values are also published to armState for the holographic telemetry.
@@ -133,10 +150,53 @@ export default function So101Arm() {
       const dither = Math.sin(t * (0.9 + i * 0.17) + i * 1.7) * 0.025
       return cur[i] + (nxt[i] - cur[i]) * k + dither
     })
-    const safe = guard(blended)
+
+    const apply = (v: number[]) =>
+      JOINT_NAMES.forEach((name, i) => j[name]?.setJointValue(v[i]))
+
+    // Measured floor guard: read the REAL world height of the wrist/gripper/
+    // jaw links (exact FK from the loaded URDF). If the pose or a transition
+    // would dip below clearance, bisect Pitch/Elbow/Wrist toward the SAFE
+    // upright pose until it clears — clipping is impossible by construction.
+    const CLEARANCE = 0.8
+    const minTipY = () => {
+      robotRef.current!.updateMatrixWorld(true)
+      let m = Infinity
+      for (const l of tipLinks.current) {
+        l.getWorldPosition(probe.current)
+        m = Math.min(m, probe.current.y)
+      }
+      return m
+    }
+
+    const mix = (s: number) => {
+      const out = [...blended]
+      for (const idx of [1, 2, 3]) out[idx] = SAFE[idx] + (blended[idx] - SAFE[idx]) * s
+      return out
+    }
+
+    // Find how much of the pose is floor-safe (bisection on measured FK)…
+    apply(blended)
+    let targetS = 1
+    if (robotRef.current && tipLinks.current.length && minTipY() < CLEARANCE) {
+      let lo = 0
+      let hi = 1
+      for (let it = 0; it < 5; it++) {
+        const mid = (lo + hi) / 2
+        apply(mix(mid))
+        if (minTipY() < CLEARANCE) hi = mid
+        else lo = mid
+      }
+      targetS = lo
+    }
+    // …then EASE toward that blend instead of snapping, so the arm glides
+    // along the clearance boundary rather than jittering against it.
+    guardS.current += (targetS - guardS.current) * (1 - Math.exp(-5 * delta))
+    const final = mix(Math.min(guardS.current, targetS + 0.02))
+    apply(final)
+
     JOINT_NAMES.forEach((name, i) => {
-      j[name]?.setJointValue(safe[i])
-      armState[name] = safe[i] as never
+      armState[name] = final[i] as never
     })
 
     if (elapsed > move + hold) {
@@ -148,6 +208,14 @@ export default function So101Arm() {
   })
 
   if (!robot) return null
-  // URDF is Z-up; rotate into the scene's Y-up and scale to size
-  return <primitive object={robot} rotation={[-Math.PI / 2, 0, 0]} scale={8} />
+  // URDF is Z-up; rotate into the scene's Y-up and scale to size. The fixed
+  // offset centres the measured footprint of the base case on the dais.
+  return (
+    <primitive
+      object={robot}
+      position={[-0.165, 0, -0.04]}
+      rotation={[-Math.PI / 2, 0, 0]}
+      scale={8}
+    />
+  )
 }

@@ -23,6 +23,10 @@ function Dais() {
         <ringGeometry args={[1.95, 2.0, 80]} />
         <meshStandardMaterial color="#0c1424" emissive="#4f8bff" emissiveIntensity={1.6} toneMapped={false} side={THREE.DoubleSide} />
       </mesh>
+      {/* fills so the robot's base is never a black silhouette */}
+      <pointLight position={[0.6, 1.3, 3.0]} intensity={10} distance={7} color="#dfe8ff" />
+      <pointLight position={[-2.2, 0.9, 0.8]} intensity={5} distance={6} color="#cfe0ff" />
+      <pointLight position={[0, 2.9, 0.7]} intensity={6} distance={5} color="#dfe8ff" />
     </group>
   )
 }
@@ -32,8 +36,9 @@ function World() {
     <>
       <MegaLab />
       <Dais />
-      {/* the hero — dead centre on the dais */}
-      <group position={[0, 0.32, 0]}>
+      {/* the hero — docked into the dais: the electronics case sits inside
+          the pedestal like a socket, only its top proud of the surface */}
+      <group position={[0, -0.03, 0]}>
         <So101Arm />
       </group>
       <Motes count={450} />
@@ -79,7 +84,7 @@ export default function LandingScene() {
         toneMapping: THREE.ACESFilmicToneMapping,
         toneMappingExposure: 1.05,
       }}
-      camera={{ position: [0, 2.7, 9.8], fov: 42 }}
+      camera={{ position: [0, 3.2, 12.8], fov: 46 }}
     >
       <color attach="background" args={['#0b0f17']} />
       <fog attach="fog" args={['#0b0f17', 13, 34]} />
@@ -101,8 +106,8 @@ export default function LandingScene() {
         enablePan={false}
         enableDamping
         dampingFactor={0.08}
-        minDistance={5.5}
-        maxDistance={10.5}
+        minDistance={6}
+        maxDistance={13}
         minPolarAngle={1.0}
         maxPolarAngle={1.5}
         minAzimuthAngle={-0.8}

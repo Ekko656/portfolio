@@ -21,6 +21,12 @@ const USED = [
   'Prop_Cable_1',
   'Prop_Cable_3',
   'Prop_Vent_Wide',
+  'Prop_Vent_Big',
+  'Prop_Chest',
+  'Prop_ItemHolder',
+  'Prop_AccessPoint',
+  'Door_Frame_Square',
+  'Door_Metal',
   'Decal_Line_90_Round_Large',
   'Decal_Dashes',
   'Decal_Line_Straight',
@@ -33,6 +39,30 @@ const DECAL_Y = 0.015 // just above the floor plates
 
 const cells = [-3, -2, -1, 0, 1, 2, 3] // 7×7 floor, edges at ±14
 const wallCells = [-2, -1, 0, 1, 2] // wall segments across ±10, corners left to columns
+
+/** Pulsing warning beacon (mounted above the bay door). */
+function Beacon({ position }: { position: [number, number, number] }) {
+  const mat = useRef<THREE.MeshStandardMaterial>(null)
+  const light = useRef<THREE.PointLight>(null)
+  useFrame(({ clock }) => {
+    const p = (Math.sin(clock.elapsedTime * 2.2) + 1) / 2
+    if (mat.current) mat.current.emissiveIntensity = 0.4 + p * 2.6
+    if (light.current) light.current.intensity = p * 6
+  })
+  return (
+    <group position={position}>
+      <mesh>
+        <cylinderGeometry args={[0.14, 0.18, 0.12, 16]} />
+        <meshStandardMaterial color="#1a212d" metalness={0.8} roughness={0.4} />
+      </mesh>
+      <mesh position={[0, 0.11, 0]}>
+        <sphereGeometry args={[0.11, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial ref={mat} color="#1a0c04" emissive="#ffae5c" emissiveIntensity={1} toneMapped={false} transparent opacity={0.9} />
+      </mesh>
+      <pointLight ref={light} position={[0, 0.3, 0.3]} color="#ffae5c" distance={7} />
+    </group>
+  )
+}
 
 /** Flickering status pips above a console — tiny life on every screen. */
 function BlinkPips({ position }: { position: [number, number, number] }) {
@@ -102,14 +132,31 @@ export default function MegaLab() {
       {/* walls — WallAstra_Straight runs 4 units along its local Z.
           back row faces +Z (toward camera), side rows face inward,
           front row closes the room behind the camera. */}
-      {wallCells.map((g) => (
-        <Model key={`wb${g}`} name="WallAstra_Straight" position={[g * TILE, 0, -EDGE]} rotation={[0, Math.PI / 2, 0]} />
+      {[0, 3.03, 6.06].map((y) => (
+        <group key={`row${y}`}>
+          {wallCells.map((g) => (
+            <Model key={`wb${g}`} name="WallAstra_Straight" position={[g * TILE, y, -EDGE]} rotation={[0, Math.PI / 2, 0]} />
+          ))}
+          {wallCells.map((g) => (
+            <Model key={`wl${g}`} name="WallAstra_Straight" position={[-EDGE, y, g * TILE]} rotation={[0, 0, 0]} />
+          ))}
+          {wallCells.map((g) => (
+            <Model key={`wr${g}`} name="WallAstra_Straight" position={[EDGE, y, g * TILE]} rotation={[0, Math.PI, 0]} />
+          ))}
+        </group>
       ))}
-      {wallCells.map((g) => (
-        <Model key={`wl${g}`} name="WallAstra_Straight" position={[-EDGE, 0, g * TILE]} rotation={[0, 0, 0]} />
-      ))}
-      {wallCells.map((g) => (
-        <Model key={`wr${g}`} name="WallAstra_Straight" position={[EDGE, 0, g * TILE]} rotation={[0, Math.PI, 0]} />
+      {/* flush trim beam closing the last sliver to the ceiling */}
+      {(
+        [
+          [0, -EDGE, 0],
+          [-EDGE, 0, Math.PI / 2],
+          [EDGE, 0, Math.PI / 2],
+        ] as [number, number, number][]
+      ).map(([x, z, ry], i) => (
+        <mesh key={`trim${i}`} position={[x, 9.15, z]} rotation={[0, ry, 0]}>
+          <boxGeometry args={[25, 0.35, 0.5]} />
+          <meshStandardMaterial color="#12171f" metalness={0.6} roughness={0.6} />
+        </mesh>
       ))}
       {/* front closure — a full-height dark panel well beyond the camera's
           max orbit distance, so swinging the view never shows void */}
@@ -128,18 +175,15 @@ export default function MegaLab() {
         ] as [number, number, number, number][]
       ).map(([x, z, ry, off], i) => (
         <group key={`band${i}`} position={[x, 0, z]} rotation={[0, ry, 0]}>
-          <mesh position={[0, 6.15, 0]}>
-            <boxGeometry args={[25, 6.3, 0.35]} />
+          {/* two stories of kit wall reach 6.05; band closes 6.05 → ceiling */}
+          <mesh position={[0, 7.7, 0]}>
+            <boxGeometry args={[25, 3.3, 0.35]} />
             <meshStandardMaterial color="#161c27" metalness={0.6} roughness={0.62} />
           </mesh>
-          {/* seam + faint light strip where the band meets the kit wall */}
-          <mesh position={[0, 3.12, off]}>
+          {/* seam light strip where the band meets the kit wall */}
+          <mesh position={[0, 6.12, off]}>
             <boxGeometry args={[24.6, 0.06, 0.02]} />
             <meshStandardMaterial color="#0c1424" emissive="#3f6dbf" emissiveIntensity={1.1} toneMapped={false} />
-          </mesh>
-          <mesh position={[0, 7.9, off]}>
-            <boxGeometry args={[24.6, 0.05, 0.02]} />
-            <meshStandardMaterial color="#10151f" metalness={0.5} roughness={0.6} />
           </mesh>
         </group>
       ))}
@@ -156,13 +200,46 @@ export default function MegaLab() {
         <Model key={`c${i}`} name="Column_Large_Straight" position={[x, 0, z]} />
       ))}
 
-      {/* consoles along the back wall, screens facing the room */}
-      {[-6, 0, 6].map((x, i) => (
+      {/* bay door centred in the back wall, beacon above it */}
+      <group position={[0, 0, -EDGE + 1.15]}>
+        <Model name="Door_Frame_Square" position={[0, 0, 0]} />
+        <Model name="Door_Metal" position={[0, 0, -0.12]} />
+      </group>
+      <Beacon position={[0, 5.6, -EDGE + 1.3]} />
+      <Model name="Prop_AccessPoint" position={[3.1, 0, -EDGE + 0.85]} rotation={[0, Math.PI / 2, 0]} />
+
+      {/* consoles: two flanking the door + one on each side wall */}
+      {(
+        [
+          [-5.5, -EDGE + 0.9, 0],
+          [5.5, -EDGE + 0.9, 0],
+        ] as [number, number, number][]
+      ).map(([x, z, ry], i) => (
         <group key={`console${i}`}>
-          <Model name="Prop_Computer" position={[x, 0, -EDGE + 0.9]} />
-          <BlinkPips position={[x, 1.75, -EDGE + 1.15]} />
+          <Model name="Prop_Computer" position={[x, 0, z]} rotation={[0, ry, 0]} />
+          <BlinkPips position={[x, 1.75, z + 0.25]} />
         </group>
       ))}
+      <group>
+        <Model name="Prop_Computer" position={[-EDGE + 0.9, 0, -3]} rotation={[0, Math.PI / 2, 0]} />
+        <BlinkPips position={[-EDGE + 1.15, 1.75, -3]} />
+      </group>
+      <group>
+        <Model name="Prop_Computer" position={[EDGE - 0.9, 0, 5]} rotation={[0, -Math.PI / 2, 0]} />
+        <BlinkPips position={[EDGE - 1.15, 1.75, 5]} />
+      </group>
+
+      {/* wall vents on the second storey */}
+      <Model name="Prop_Vent_Big" position={[-8, 4.4, -EDGE + 0.65]} rotation={[Math.PI / 2, 0, 0]} />
+      <Model name="Prop_Vent_Big" position={[8, 4.4, -EDGE + 0.65]} rotation={[Math.PI / 2, 0, 0]} />
+      <Model name="Prop_Vent_Big" position={[-EDGE + 0.65, 4.4, 4]} rotation={[Math.PI / 2, 0, Math.PI / 2]} />
+
+      {/* workbench corner: chest + item holder */}
+      <group position={[9, 0, -8.5]} rotation={[0, -0.7, 0]}>
+        <Model name="Prop_Chest" position={[0, 0, 0]} />
+        <Model name="Prop_ItemHolder" position={[1.6, 0, 0.3]} rotation={[0, 0.4, 0]} />
+        <Model name="Prop_Barrel_Large" position={[-1.3, 0, 0.5]} />
+      </group>
 
       {/* work clutter — one asymmetric cluster each side, out of the hero's way */}
       <group position={[-8.5, 0, 4]} rotation={[0, 0.4, 0]}>
@@ -218,6 +295,12 @@ export default function MegaLab() {
         rotation={[0, 0.5, 0]}
         scale={0.85}
         title="BAY-07 · SYSTEMS"
+      />
+      <HoloTelemetry
+        position={[-8.2, 5.4, -7.5]}
+        rotation={[0, 0.65, 0]}
+        scale={0.65}
+        title="DRONE LINK · PATROL"
       />
 
       {/* hanging light pools */}
