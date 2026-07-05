@@ -17,25 +17,31 @@ export default function HoloTelemetry({
   rotation = [0, 0, 0],
   scale = 1,
   title = 'SO-101 · LIVE TELEMETRY',
+  accent = '#39c6ff',
 }: {
   position: [number, number, number]
   rotation?: [number, number, number]
   scale?: number
   title?: string
+  accent?: string
 }) {
   const group = useRef<THREE.Group>(null)
   const history = useRef<number[]>([])
   const frame = useRef(0)
 
-  const { canvas, ctx, tex } = useMemo(() => {
+  const { canvas, ctx, tex, rgb, dark, light } = useMemo(() => {
     const canvas = document.createElement('canvas')
     canvas.width = W
     canvas.height = H
     const ctx = canvas.getContext('2d')!
     const tex = new THREE.CanvasTexture(canvas)
     tex.colorSpace = THREE.SRGBColorSpace
-    return { canvas, ctx, tex }
-  }, [])
+    const c = new THREE.Color(accent)
+    const rgb = `${Math.round(c.r * 255)}, ${Math.round(c.g * 255)}, ${Math.round(c.b * 255)}`
+    const dark = `#${c.clone().multiplyScalar(0.62).getHexString()}`
+    const light = `#${c.clone().lerp(new THREE.Color('#ffffff'), 0.55).getHexString()}`
+    return { canvas, ctx, tex, rgb, dark, light }
+  }, [accent])
 
   useFrame(({ clock }) => {
     // gentle float
@@ -52,14 +58,14 @@ export default function HoloTelemetry({
     // panel bg + frame
     ctx.fillStyle = 'rgba(6, 16, 28, 0.55)'
     ctx.fillRect(0, 0, W, H)
-    ctx.strokeStyle = 'rgba(57, 198, 255, 0.9)'
+    ctx.strokeStyle = `rgba(${rgb}, 0.9)`
     ctx.lineWidth = 2
     ctx.strokeRect(1, 1, W - 2, H - 2)
-    ctx.fillStyle = 'rgba(57, 198, 255, 0.14)'
+    ctx.fillStyle = `rgba(${rgb}, 0.14)`
     ctx.fillRect(0, 0, W, 34)
 
     // title + blinking status dot
-    ctx.fillStyle = '#9fdcff'
+    ctx.fillStyle = light
     ctx.font = '600 17px "JetBrains Mono", monospace'
     ctx.fillText(title, 14, 23)
     ctx.fillStyle = Math.sin(t * 4) > 0 ? '#48e58b' : 'rgba(72,229,139,0.25)'
@@ -76,15 +82,15 @@ export default function HoloTelemetry({
       const v = armState[name as keyof typeof armState] as number
       const n = THREE.MathUtils.clamp((v - lo) / (hi - lo), 0, 1)
 
-      ctx.fillStyle = 'rgba(159, 220, 255, 0.75)'
+      ctx.fillStyle = `rgba(${rgb}, 0.8)`
       ctx.font = '12px "JetBrains Mono", monospace'
       ctx.fillText(name.replace('_', ' ').toUpperCase(), bx, y - 6)
 
-      ctx.fillStyle = 'rgba(57, 198, 255, 0.15)'
+      ctx.fillStyle = `rgba(${rgb}, 0.15)`
       ctx.fillRect(bx, y, bw, 8)
       const grad = ctx.createLinearGradient(bx, 0, bx + bw, 0)
-      grad.addColorStop(0, '#2a6fd6')
-      grad.addColorStop(1, '#39c6ff')
+      grad.addColorStop(0, dark)
+      grad.addColorStop(1, `rgb(${rgb})`)
       ctx.fillStyle = grad
       ctx.fillRect(bx, y, bw * n, 8)
       // value readout
@@ -95,7 +101,7 @@ export default function HoloTelemetry({
     // waveform of base rotation
     history.current.push(armState.Rotation)
     if (history.current.length > 90) history.current.shift()
-    ctx.strokeStyle = 'rgba(57, 198, 255, 0.9)'
+    ctx.strokeStyle = `rgba(${rgb}, 0.9)`
     ctx.lineWidth = 1.5
     ctx.beginPath()
     history.current.forEach((v, i) => {
@@ -104,12 +110,12 @@ export default function HoloTelemetry({
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
     })
     ctx.stroke()
-    ctx.strokeStyle = 'rgba(57,198,255,0.25)'
+    ctx.strokeStyle = `rgba(${rgb}, 0.25)`
     ctx.strokeRect(W - 132, 52, 118, 88)
 
     // scan line
     const sy = (t * 40) % H
-    ctx.fillStyle = 'rgba(57, 198, 255, 0.08)'
+    ctx.fillStyle = `rgba(${rgb}, 0.08)`
     ctx.fillRect(0, sy, W, 14)
 
     tex.needsUpdate = true

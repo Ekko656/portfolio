@@ -6,6 +6,8 @@ import HoloTelemetry from './HoloTelemetry'
 import Drone from './Drone'
 import Scanner from './Scanner'
 import IgnitionCore from './IgnitionCore'
+import HoloTable from './HoloTable'
+import DataStreams from './DataStreams'
 import { HERO_Z } from '../ignition'
 
 const TILE = 4
@@ -229,7 +231,7 @@ export default function MegaLab() {
         <Model name="Prop_Barrel_Large" position={[0.7, 0, 0.5]} />
         <Model name="Prop_Crate4" position={[-0.4, 0, 1.4]} rotation={[0, 0.3, 0]} />
       </group>
-      <group position={[12, 0, -11]} rotation={[0, -0.7, 0]}>
+      <group position={[-12, 0, 10]} rotation={[0, 0.8, 0]}>
         <Model name="Prop_Chest" position={[0, 0, 0]} />
         <Model name="Prop_ItemHolder" position={[1.6, 0, 0.3]} rotation={[0, 0.4, 0]} />
         <Model name="Prop_Barrel_Large" position={[-1.3, 0, 0.5]} />
@@ -273,9 +275,22 @@ export default function MegaLab() {
       {/* live holographic telemetry — tight to the arm, always in frame */}
       <group position={[0, 0, HERO_Z]}>
         <HoloTelemetry position={[3.5, 2.7, -0.9]} rotation={[0, -0.5, 0]} scale={0.9} />
-        <HoloTelemetry position={[-3.6, 2.95, -1.2]} rotation={[0, 0.45, 0]} scale={0.8} title="BAY-07 · SYSTEMS" />
+        <HoloTelemetry
+          position={[-3.6, 2.95, -1.2]}
+          rotation={[0, 0.45, 0]}
+          scale={0.8}
+          title="BAY-07 · SYSTEMS"
+          accent="#a78bff"
+        />
       </group>
       <HoloTelemetry position={[-10, 5.6, -10]} rotation={[0, 0.65, 0]} scale={0.65} title="DRONE LINK · PATROL" />
+
+      {/* the statement piece: violet hologram of the SO-101, mirroring the
+          hero's live joints */}
+      <HoloTable position={[-8, 0, -7]} />
+
+      {/* the room's nervous system */}
+      <DataStreams />
 
       {/* hanging light pools (12m ceiling) */}
       <HangLight position={[-6, 12.2, 5]} />

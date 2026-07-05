@@ -1,6 +1,7 @@
-import { Suspense } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Suspense, useEffect, useRef } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Environment, Lightformer } from '@react-three/drei'
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import * as THREE from 'three'
 import So101Arm from '../components/arm/So101Arm'
@@ -75,6 +76,49 @@ function Lighting() {
   )
 }
 
+/**
+ * When the visitor goes idle for a few seconds, the camera breathes — a slow
+ * azimuth/polar drift around the hero that eases away the moment they touch
+ * the controls again.
+ */
+function IdleDrift() {
+  const controls = useThree((s) => s.controls) as OrbitControlsImpl | null
+  const lastInput = useRef(0)
+  const amp = useRef(0)
+  const base = useRef({ az: 0, pol: 0, t0: 0, captured: false })
+
+  useEffect(() => {
+    if (!controls) return
+    const touch = () => {
+      lastInput.current = performance.now() / 1000
+      base.current.captured = false
+    }
+    controls.addEventListener('start', touch)
+    controls.addEventListener('end', touch)
+    return () => {
+      controls.removeEventListener('start', touch)
+      controls.removeEventListener('end', touch)
+    }
+  }, [controls])
+
+  useFrame(({ clock, camera }, delta) => {
+    ;(window as unknown as Record<string, unknown>).__cam = camera
+    if (!controls) return
+    const t = clock.elapsedTime
+    const idle = performance.now() / 1000 - lastInput.current > 5
+    if (idle && !base.current.captured) {
+      base.current = { az: controls.getAzimuthalAngle(), pol: controls.getPolarAngle(), t0: t, captured: true }
+    }
+    amp.current += ((idle ? 1 : 0) - amp.current) * (1 - Math.exp(-1.1 * delta))
+    if (amp.current > 0.002 && base.current.captured) {
+      const dt = t - base.current.t0
+      controls.setAzimuthalAngle(base.current.az + Math.sin(dt * 0.07) * 0.13 * amp.current)
+      controls.setPolarAngle(base.current.pol + Math.sin(dt * 0.045 + 1.2) * 0.035 * amp.current)
+    }
+  })
+  return null
+}
+
 export default function LandingScene() {
   return (
     <Canvas
@@ -94,6 +138,7 @@ export default function LandingScene() {
       <Suspense fallback={null}>
         <Lighting />
         <World />
+        <IdleDrift />
 
         <EffectComposer>
           <Bloom intensity={0.85} luminanceThreshold={0.6} luminanceSmoothing={0.3} mipmapBlur />
